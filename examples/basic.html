@@ -10,26 +10,63 @@
     <script>
     var etm;
     $(document).ready(function () {
-      etm = new Etmodel()
-      etm.update()
+      $('.etmodel-scenario').etmodel({})
     });
     </script>
+
   </head>
   <body>
     <div class="container">
       <div class="row">
-        <div class="span8">
+        <div class="span12">
+          <p class="small">This example has to run on a webserver to make ajax calls work</p>
           <h3>Etmodel plugin example</h3>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span7 etmodel-scenario">
+          <input type="hidden" data-etm-area-code="nl"  />
+          <input type="hidden" data-etm-end-year="2050" />
           <p class='form-inline'>
             If the population of the Netherlands grew by
             <input type="text" data-etm-input="households_number_of_inhabitants" value="2.0" class="span1"/>%
             then the total energy cost would increase by
-            <span data-etm-output="dashboard_total_costs" data-etm-period="delta_percent"></span>%
+            <strong data-etm-output="dashboard_total_costs" data-etm-period="delta_percent"></strong>%
             (from
             <span data-etm-output="dashboard_total_costs" data-etm-period="present"></span>
             to
-            <span data-etm-output="dashboard_total_costs" data-etm-period="future" data-etm-round="2"></span>).
-          </div>
+            <strong data-etm-output="dashboard_total_costs" data-etm-period="future" data-etm-round="2"></strong> billion Euros).
+          </p>
+          <p class='form-inline'>
+            The Netherlands has a lot of natural gas reserves. Unfortunately they are running out, so that if we didn't switch to different sources of energy (coal, oil, solar, wind, etc) by the year of 2050
+            <strong data-etm-output="dashboard_energy_import_netto" data-etm-period="percent"></strong>% of our energy has to be imported.
+            This is problematic, as the Netherlands has no control on gas prices. A gas price increase by
+            <input type="text" data-etm-input="costs_gas" value="0.0" class="span1"/>% it can have dramatic effects to the total cost of energy.
+          </p>
+        </div>
+
+
+       <div class="span4 etmodel-scenario">
+          <input type="hidden" data-etm-area-code="de"  />
+          <input type="hidden" data-etm-end-year="2050" />
+
+          <p class='form-inline'>
+            However in <strong>Germany</strong> everything looks different.  If the population of Germany grew by
+            <input type="text" data-etm-input="households_number_of_inhabitants" value="2.0" class="span1"/>%
+            then the total energy cost would increase by
+            <strong data-etm-output="dashboard_total_costs" data-etm-period="delta_percent"></strong>%
+            (from
+            <span data-etm-output="dashboard_total_costs" data-etm-period="present"></span>
+            to
+            <strong data-etm-output="dashboard_total_costs" data-etm-period="future" data-etm-round="2"></strong> billion Euros).
+          </p>
+          <p class='form-inline'>
+            The Netherlands has a lot of natural gas reserves. Unfortunately they are running out, so that if we didn't switch to different sources of energy (coal, oil, solar, wind, etc) by the year of 2050
+            <strong data-etm-output="dashboard_energy_import_netto" data-etm-period="percent"></strong>% of its energy has to be imported.
+            This is problematic, as it has no control on gas prices. A gas price increase by
+            <input type="text" data-etm-input="costs_gas" value="0.0" class="span1"/>% it can have dramatic effects to the total cost of energy.
+          </p>
         </div>
       </div>
     </div>

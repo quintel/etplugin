@@ -1,37 +1,101 @@
-class @Etmodel
-  constructor: ->
-    @api = new ApiGateway()
-    @inputs = $('[data-etm-input]')
-    @inputs.bind 'change', =>
-      @update()
-    @outputs = $('[data-etm-output]').each (i,el) ->
-      $(el).html('...')
+$.fn.extend
+  # Useage of etmodel jquery plugin:
+  #
+  #      $(document).etmodel({})
+  #
+  # There can be individual sections, each having it's own scenario that
+  # updates individually
+  #
+  #      $('.etmodel-scenario').etmodel({})
+  #
+  # The plugin will search for the following tags:
+  #
+  # Settings:
+  #
+  #      <input data-etm-area-code="nl">
+  #      <input data-etm-end-year="2050">
+  #
+  # Inputs:
+  #
+  #      <input data-etm-input="some_input_key" value="0.0">
+  #
+  # The model will automatically update when the inputs are changed. Define a start-value
+  # with the value tag. Otherwise the default start value provided by us, will be used.
+  #
+  # Outputs/Queries:
+  #
+  #      <span data-etm-output="some_input_key">this will be replaced</span>
+  #
+  #      Show the present/future or the delta in percent:
+  #      <span ... data-etm-period="present">
+  #      <span ... data-etm-period="future">
+  #      <span ... data-etm-period="delta_percent">
+  #
+  #      Round the numbers (default: 1):
+  #      <span ... data-etm-round="2">
+  #
+  #
+  etmodel: (options = {}) ->
+    self = $.fn.etmodel
+    # opts = $.extend {}, self.default_options, options
+    $(this).each (i, el) ->
+      etm = new Etmodel(el, options)
+      etm.update()
 
+class @Etmodel
+  # Initializes an etmodel scenario inside the @base
+  #
+  #     etm = new Etmodel("body")
+  #     etm.update()
+  #
+  # There can be multiple different etmodel scenarios in one given page. They
+  # will be updated separately
+  #
+  #     etm = new Etmodel(".etmodel-scenario")
+  #     etm.update()
+  #
+  constructor: (base, options = {}) ->
+    @base = $(base)
+
+    @settings =
+      end_year:  $('input[data-etm-end-year]',  @base).attr('data-etm-end-year')   || 2050
+      area_code: $('input[data-etm-area-code]', @base).attr('data-etm-area-code') || 'nl'
+
+    @api     = new ApiGateway(@settings)
+    @inputs  = $('[data-etm-input]',  @base).bind('change', => @update())
+    @outputs = $('[data-etm-output]', @base).each (i,el) ->
+      $(el).html('...')
 
   update: ->
     inputs = {}
     @inputs.each (i, el) ->
-      inputs[$(el).attr('data-etm-input')] = $(el).val()
+      inputs[ $(el).attr('data-etm-input') ] = $(el).val()
 
-    query_keys = ['dashboard_total_costs'] #@outputs.map (el) -> $(el).attr('[data-etm-output]')
+    query_keys = []
+    @outputs.each (i, el) -> query_keys.push($(el).attr('data-etm-output'))
 
     @api.update({
       inputs:  inputs,
-      queries: query_keys,
+      queries: $.unique(query_keys),
       success: @handle_result
     })
 
-  handle_result: (data) ->
-    for own key, values of data.results
-      $("[data-etm-output=#{key}]").each (i,el) ->
+  # Updates data-etm-output elements with the results from the api call
+  handle_result: ({results}) =>
+    for own key, values of results
+      $("[data-etm-output=#{key}]", @base).each (i,el) ->
         period = $(el).attr('data-etm-period') || 'future'
+        # Move this into own number formatter module.
         value  = if period == 'delta_percent'
           Math.round((values.future / values.present - 1.0) * 100)
+        else if period == 'percent'
+          values.future * 100
         else
           values[period]
         value = Util.round(value, $('el').attr('data-round') || 1)
-        unit = values.unit
-        $(el).html("#{value}" )
+
+        $(el).html("#{value}")
+
 
 class @Util
   @round: (value, n) ->
