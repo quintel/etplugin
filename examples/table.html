@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="../vendor/assets/javascripts/jquery.ajaxqueue.js"></script>
+    <script src="../vendor/assets/javascripts/jquery.etmodel.js"></script>
+
+    <script>
+    var etm;
+    $(document).ready(function () {
+      $('.etmodel-scenario').etmodel({})
+    });
+    </script>
+
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="span12">
+          <p class="small">This example has to run on a webserver to make ajax calls work</p>
+          <h3>Etmodel plugin example</h3>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span4 etmodel-scenario">
+          <h3>Netherlands 2050</h3>
+          <input type="hidden" data-etm-area-code="nl"  />
+          <input type="hidden" data-etm-end-year="2050" />
+          <table class="table">
+            <tr>
+              <th>Population</th>
+              <td><input type="text" data-etm-input="households_number_of_inhabitants" value="2.0" class="span1"/>%</td>
+            </tr>
+            <tr>
+              <th>Costs</th>
+              <td>
+                <strong data-etm-output="dashboard_total_costs" data-etm-period="future"></strong>%
+              </td>
+            </tr>
+            <tr>
+              <th>Imports:</th>
+              <td>
+                <strong data-etm-output="dashboard_energy_import_netto" data-etm-period="future"></strong>%
+              </td>
+            </tr>
+          </table>
+        </div>
+
+
+        <div class="span4 etmodel-scenario">
+          <h3>Netherlands 2035</h3>
+          <input type="hidden" data-etm-area-code="nl"  />
+          <input type="hidden" data-etm-end-year="2035" />
+          <table class="table">
+            <tr>
+              <th>Population</th>
+              <td><input type="text" data-etm-input="households_number_of_inhabitants" value="2.0" class="span1"/>%</td>
+            </tr>
+            <tr>
+              <th>Costs</th>
+              <td>
+                <strong data-etm-output="dashboard_total_costs" data-etm-period="future"></strong>%
+              </td>
+            </tr>
+            <tr>
+              <th>Imports:</th>
+              <td>
+                <strong data-etm-output="dashboard_energy_import_netto" data-etm-period="future"></strong>%
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="span4 etmodel-scenario">
+          <h3>Netherlands 2020</h3>
+          <input type="hidden" data-etm-area-code="nl"  />
+          <input type="hidden" data-etm-end-year="2020" />
+          <table class="table">
+            <tr>
+              <th>Population</th>
+              <td><input type="text" data-etm-input="households_number_of_inhabitants" value="2.0" class="span1"/>%</td>
+            </tr>
+            <tr>
+              <th>Costs</th>
+              <td>
+                <strong data-etm-output="dashboard_total_costs" data-etm-period="future"></strong>%
+              </td>
+            </tr>
+            <tr>
+              <th>Imports:</th>
+              <td>
+                <strong data-etm-output="dashboard_energy_import_netto" data-etm-period="future"></strong>%
+              </td>
+            </tr>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>
