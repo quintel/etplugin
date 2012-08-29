@@ -1,3 +1,30 @@
+# ApiGateway connects to the etengine gateway and does all the necessary checks.
+#
+# @example:
+#
+#     api = new ApiGateway()
+#     api.update
+#       inputs:  {households_number_of_inhabitants: -1.5}
+#       queries: ['dashboard_total_costs']
+#       success: (result) ->
+#         console.log(result.queries.dashboard_total_costs.future)
+#       error: -> alert("error")
+#
+# @example configuration and before/afterLoading callbacks:
+#
+#     api = new ApiGateway
+#        scenario_id: 323231
+#        beforeLoading: -> console.log('before')
+#        afterLoading:  -> console.log('after')
+#
+# @example api.ensure_id()
+#
+#     api = new ApiGateway()
+#     api.scenario_id # => null
+#     api.ensure_id().done (id) -> id # => 32311
+#     api.scenario_id
+#
+#
 class @ApiGateway
   PATH = null
   VERSION = '0.1'
@@ -38,9 +65,9 @@ class @ApiGateway
   # Wrap things that need a scenario_id inside the ready block.
   #
   # @example Useage
-  #   @ready().done (id) -> console.log(id)
+  #   @ensure_id().done (id) -> console.log(id)
   #
-  ready: ->
+  ensure_id: ->
     return @deferred_scenario_id if @deferred_scenario_id
     # scenario_id available?
     if id = @scenario_id
@@ -66,7 +93,7 @@ class @ApiGateway
 
   changeScenario: ({attributes, success, error}) ->
     @settings = $.extend @settings, @pickSettings(attributes)
-    # @ready().done =>
+    # @ensure_id().done =>
     #   url = @path "scenarios"
     #   @__call_api__(url, {scenario: @settings}, ->, ->, {type: 'POST'} )
 
@@ -96,7 +123,7 @@ class @ApiGateway
   # and returns results of queries)
   #
   update: ({inputs, queries, success, error, settings}) ->
-    @ready().done =>
+    @ensure_id().done =>
       error ||= @opts.defaultErrorHandler
 
       params =
@@ -113,7 +140,7 @@ class @ApiGateway
       # because I want __call_api__ to be generic. the parsing of results
       # only is needed in this specific request type.
       success_callback = (data, textStatus, jqXHR) =>
-        parsed_results = @parse_success(data, textStatus, jqXHR)
+        parsed_results = @__parse_success__(data, textStatus, jqXHR)
         success(parsed_results, data, textStatus, jqXHR)
 
       @__call_api__(url, params, success_callback, error)
@@ -121,7 +148,7 @@ class @ApiGateway
   # Loads scenarios/../inputs.json that contains attributes for
   # the inputs.
   user_values: ({success, error}) =>
-    @ready().done =>
+    @ensure_id().done =>
       $.ajax
         url: @path("scenarios/#{@scenario_id}/inputs.json")
         success : success
@@ -135,7 +162,7 @@ class @ApiGateway
   #   inputs:  {123: 0.4}
   #   settings: {...}
   # }
-  parse_success: (data, textStatus, jqXHR) ->
+  __parse_success__: (data, textStatus, jqXHR) ->
     result =
       results:  {}
       inputs:   data.settings?.user_values
