@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="../vendor/assets/javascripts/jquery.ajaxqueue.js"></script>
+    <script src="../vendor/assets/javascripts/jquery.etmodel.js"></script>
+
+    <script>
+    var etm;
+    $(document).ready(function () {
+      etm = new Etmodel()
+      etm.update()
+    });
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="span8">
+          <h3>Etmodel plugin example</h3>
+          <p class='form-inline'>
+            If the population of the Netherlands grew by
+            <input type="text" data-etm-input="households_number_of_inhabitants" value="2.0" class="span1"/>%
+            then the total energy cost would increase by
+            <span data-etm-output="dashboard_total_costs" data-etm-period="delta_percent"></span>%
+            (from
+            <span data-etm-output="dashboard_total_costs" data-etm-period="present"></span>
+            to
+            <span data-etm-output="dashboard_total_costs" data-etm-period="future" data-etm-round="2"></span>).
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,3 +1,49 @@
+class @Etmodel
+  constructor: ->
+    @api = new ApiGateway()
+    @inputs = $('[data-etm-input]')
+    @inputs.bind 'change', =>
+      @update()
+    @outputs = $('[data-etm-output]').each (i,el) ->
+      $(el).html('...')
+
+
+  update: ->
+    inputs = {}
+    @inputs.each (i, el) ->
+      inputs[$(el).attr('data-etm-input')] = $(el).val()
+
+    query_keys = ['dashboard_total_costs'] #@outputs.map (el) -> $(el).attr('[data-etm-output]')
+
+    @api.update({
+      inputs:  inputs,
+      queries: query_keys,
+      success: @handle_result
+    })
+
+  handle_result: (data) ->
+    for own key, values of data.results
+      $("[data-etm-output=#{key}]").each (i,el) ->
+        period = $(el).attr('data-etm-period') || 'future'
+        value  = if period == 'delta_percent'
+          Math.round((values.future / values.present - 1.0) * 100)
+        else
+          values[period]
+        value = Util.round(value, $('el').attr('data-round') || 1)
+        unit = values.unit
+        $(el).html("#{value}" )
+
+class @Util
+  @round: (value, n) ->
+    multiplier = Math.pow(10, n);
+    if n > 0
+      (Math.round(value * multiplier) / multiplier)
+    else if n.zero()
+      Math.round(value)
+    else
+      Math.round(value * multiplier) / multiplier
+
+
 # ApiGateway connects to the etengine gateway and does all the necessary checks.
 #
 # @example:
