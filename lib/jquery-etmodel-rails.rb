@@ -1,0 +1,1 @@
+require 'jquery-etmodel/rails'
