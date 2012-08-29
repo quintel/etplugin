@@ -3,49 +3,42 @@
 Build your own small energy future scenario or make an interactive infographic
 on Energy, using the renowed Energy Transition Model. Free for use!
 
-## Installation
+## Installation Gem:
+
+Gemfile:
+
+    gem "jquery-etmodel-rails", :git  => "git@github.com:dennisschoenmakers/etplugin"
+
+app/assets/javascripts/application.js
+
+    // require jquery.etmodel
+
+If you want to work on the plugin itself, clone this repository and replace the above with the following command:
+
+    gem "jquery-etmodel-rails", :path => "~/path/to/etplugin"
+
+Change files and reload:
+
+    etmodel $ bundle install
+    etmodel $ rails s
+
+For big changes it might be worthwile to copy the file into app/assets/javascripts and then when everything is working, copy it back.
+
+
+## Installation (standalone)
+
+Copy the jquery.etmodel.js file from the vendor/assets/javascripts folder.
 
 ET-Plugin is a jQuery plugin. Make sure you use jQuery 1.6+ and add this plugin
 to your site:
 
     <head>
       <script type<script src="jquery.js" type="text/javascript"></script>
-      <script type<script src="jquery.etplugin.js" type="text/javascript"></script>
+      <script type<script src="jquery.etmodel.js" type="text/javascript"></script>
     </head>
 
 Then you can start using user variables on any plain form objects, such as:
 
-### Input field
-
-    <form>
-      <input type='textfield' name='your_name' class='etm_population_growth'/>
-    </form>
-
-### Select fields
-
-...
-
-### Radio buttons
-
-...
-
-## Output
-
-You can add the outcome of the ETM to your
-
-### Div
-
-    <div class=etm_total_co2_emissions></div>
-
-### Span
-
-...
-
-### Chart
-
-...
-
-## Customizing
 
 ### ApiGateway
 
@@ -109,6 +102,39 @@ In the same request we can define queries that should be returned:
 ### Error handling
 
 ...
+
+
+### Input field
+
+    <form>
+      <input type='textfield' name='your_name' class='etm_population_growth'/>
+    </form>
+
+### Select fields
+
+...
+
+### Radio buttons
+
+...
+
+## Output
+
+You can add the outcome of the ETM to your
+
+### Div
+
+    <div class=etm_total_co2_emissions></div>
+
+### Span
+
+...
+
+### Chart
+
+...
+
+## Customizing
 
 # Issues
 
