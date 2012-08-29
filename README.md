@@ -25,7 +25,7 @@ Change files and reload:
 For big changes it might be worthwile to copy the file into app/assets/javascripts and then when everything is working, copy it back.
 
 
-## Installation (standalone)
+### Installation (standalone)
 
 Copy the jquery.etmodel.js file from the vendor/assets/javascripts folder.
 
@@ -40,7 +40,7 @@ to your site:
 Then you can start using user variables on any plain form objects, such as:
 
 
-### ApiGateway
+## ApiGateway
 
 You can access our API, through the ApiGateway class.
 
