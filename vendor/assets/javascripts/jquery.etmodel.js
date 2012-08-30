@@ -251,12 +251,12 @@
           afterLoading();
         }
         return success(data, textStatus, jqXHR);
-      }).fail(function(jqXHR, textStatus, error) {
+      }).fail(function(jqXHR, textStatus, err) {
         ApiGateway.queue.pop();
         if (ApiGateway.queue.length === 0) {
           afterLoading();
         }
-        return error(jqXHR, textStatus, error);
+        return error(jqXHR, textStatus, err);
       });
     };
 

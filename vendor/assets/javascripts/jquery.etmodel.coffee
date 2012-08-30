@@ -311,10 +311,10 @@ class @ApiGateway
         ApiGateway.queue.pop()
         afterLoading() if ApiGateway.queue.length == 0
         success(data, textStatus, jqXHR)
-      .fail (jqXHR, textStatus, error) ->
+      .fail (jqXHR, textStatus, err) ->
         ApiGateway.queue.pop()
         afterLoading() if ApiGateway.queue.length == 0
-        error(jqXHR, textStatus, error)
+        error(jqXHR, textStatus, err)
 
   # extracts only keys relevant for settings from hsh
   pickSettings: (hsh) ->
