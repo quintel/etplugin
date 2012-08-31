@@ -32,11 +32,11 @@
             If the population of the Netherlands grew by
             <input type="text" data-etm-input="households_number_of_inhabitants" value="2.0" class="span1"/>%
             then the total energy cost would increase by
-            <strong data-etm-output="dashboard_total_costs" data-etm-period="delta_percent"></strong>%
+            <strong data-etm-output="dashboard_total_costs" data-etm-format="delta;percent;round"></strong>%
             (from
-            <span data-etm-output="dashboard_total_costs" data-etm-period="present"></span>
+            <span data-etm-output="dashboard_total_costs"   data-etm-format="present;round"></span>
             to
-            <strong data-etm-output="dashboard_total_costs" data-etm-period="future" data-etm-round="2"></strong> billion Euros).
+            <strong data-etm-output="dashboard_total_costs" data-etm-format="future;round:3"></strong> billion Euros).
           </p>
           <p class='form-inline'>
             The Netherlands has a lot of natural gas reserves. Unfortunately they are running out, so that if we didn't switch to different sources of energy (coal, oil, solar, wind, etc) by the year of 2050

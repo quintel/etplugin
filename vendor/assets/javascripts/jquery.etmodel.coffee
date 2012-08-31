@@ -1,48 +1,51 @@
-$.fn.extend
-  # Useage of etmodel jquery plugin:
-  #
-  #      $(document).etmodel({})
-  #
-  # There can be individual sections, each having it's own scenario that
-  # updates individually
-  #
-  #      $('.etmodel-scenario').etmodel({})
-  #
-  # The plugin will search for the following tags:
-  #
-  # Settings:
-  #
-  #      <input data-etm-area-code="nl">
-  #      <input data-etm-end-year="2050">
-  #
-  # Inputs:
-  #
-  #      <input data-etm-input="some_input_key" value="0.0">
-  #
-  # The model will automatically update when the inputs are changed. Define a start-value
-  # with the value tag. Otherwise the default start value provided by us, will be used.
-  #
-  # Outputs/Queries:
-  #
-  #      <span data-etm-output="some_input_key">this will be replaced</span>
-  #
-  #      Show the present/future or the delta in percent:
-  #      <span ... data-etm-period="present">
-  #      <span ... data-etm-period="future">
-  #      <span ... data-etm-period="delta_percent">
-  #
-  #      Round the numbers (default: 1):
-  #      <span ... data-etm-round="2">
-  #
-  #
-  etmodel: (options = {}) ->
-    self = $.fn.etmodel
-    # opts = $.extend {}, self.default_options, options
-    $(this).each (i, el) ->
-      etm = new Etmodel(el, options)
-      etm.update()
+root = global ? window
 
-class @Etmodel
+# Useage of etmodel jquery plugin:
+#
+#      $(document).etmodel({})
+#
+# There can be individual sections, each having it's own scenario that
+# updates individually
+#
+#      $('.etmodel-scenario').etmodel({})
+#
+# The plugin will search for the following tags:
+#
+# Settings:
+#
+#      <input data-etm-area-code="nl">
+#      <input data-etm-end-year="2050">
+#
+# Inputs:
+#
+#      <input data-etm-input="some_input_key" value="0.0">
+#
+# The model will automatically update when the inputs are changed. Define a start-value
+# with the value tag. Otherwise the default start value provided by us, will be used.
+#
+# Outputs/Queries:
+#
+#      <span data-etm-output="some_input_key">this will be replaced</span>
+#
+#      Show the present/future or the delta in percent:
+#      <span ... data-etm-period="present">
+#      <span ... data-etm-period="future">
+#      <span ... data-etm-period="delta_percent">
+#
+#      Round the numbers (default: 1):
+#      <span ... data-etm-round="2">
+#
+#
+if ($?)
+  $.fn.extend
+    etmodel: (options = {}) ->
+      self = $.fn.etmodel
+      # opts = $.extend {}, self.default_options, options
+      $(this).each (i, el) ->
+        etm = new Etmodel(el, options)
+        etm.update()
+
+class root.Etmodel
   # Initializes an etmodel scenario inside the @base
   #
   #     etm = new Etmodel("body")
@@ -84,28 +87,50 @@ class @Etmodel
   handle_result: ({results}) =>
     for own key, values of results
       $("[data-etm-output=#{key}]", @base).each (i,el) ->
-        period = $(el).attr('data-etm-period') || 'future'
-        # Move this into own number formatter module.
-        value  = if period == 'delta_percent'
-          Math.round((values.future / values.present - 1.0) * 100)
-        else if period == 'percent'
-          values.future * 100
-        else
-          values[period]
-        value = Util.round(value, $('el').attr('data-round') || 1)
+        format_str = $(el).attr('data-etm-format') || 'future;round'
+        result     = new Etmodel.ResultFormatter(values, format_str).value()
+        $(el).html(result)
 
-        $(el).html("#{value}")
+class Etmodel.ResultFormatter
+  constructor: (@result, @format_string="future;round") ->
 
+  value: ->
+    result = @result
+    for formatter in @format_string.split(";")
+      [method, args] = formatter.split(":")
+      params = [result].concat args
+      result = this[method].apply(null, params)
+    result
 
-class @Util
-  @round: (value, n) ->
-    multiplier = Math.pow(10, n);
-    if n > 0
-      (Math.round(value * multiplier) / multiplier)
-    else if n.zero()
-      Math.round(value)
+  valueOf: ->
+    value()
+
+  toString: ->
+    "#{value()}"
+
+  # Expect an API result in the form of a hash: {present: 45, future: 48, unit: 'bln_euro'}
+  future: (result)  -> result.future
+
+  present: (result) -> result.present
+
+  delta: (result)   ->
+    f = result.future
+    p = result.present
+    return 0.0 if f is 0 && p is 0
+    f / p - 1.0
+
+  percent: (number) -> number * 100
+
+  round: (number, precision) ->
+    precision ||= 1
+    precision   = parseInt(precision)
+    multiplier  = Math.pow(10, precision);
+    if precision > 0
+      (Math.round(number * multiplier) / multiplier)
+    else if precision is 0
+      Math.round(number)
     else
-      Math.round(value * multiplier) / multiplier
+      Math.round(number * multiplier) / multiplier
 
 
 # ApiGateway connects to the etengine gateway and does all the necessary checks.
@@ -342,3 +367,6 @@ class @ApiGateway
   # path - The URL path; appended to the API path.
   #
   path: (suffix) -> "#{ PATH }/api/v3/#{ suffix }"
+
+
+if typeof(exports) != 'undefined' then exports.Etmodel = Etmodel
