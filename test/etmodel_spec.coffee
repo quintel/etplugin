@@ -19,15 +19,76 @@ if $? # Run only if jquery is included. e.g. not when running it on a console.
 
     it "should assign default settings", ->
       @etmdefault = $('#scenario-defaults').etmodel()[0]
-      assert.equal 'nl', @etmdefault.settings.area_code
+      assert.equal 'nl',   @etmdefault.settings.area_code
       assert.equal '2050', @etmdefault.settings.end_year
 
     it "should overwrite settings", ->
-      assert.equal 'de', @etm.settings.area_code
+      assert.equal 'de',   @etm.settings.area_code
       assert.equal '2030', @etm.settings.end_year
 
     it "should find inputs", ->
-      assert.equal 2, @etm.inputs.length
+      assert.equal 2,      @etm.inputs.length
+
+    it "should assign api_path correctly", ->
+      etm = $('#scenario1').etmodel({api_path: 'http://beta.et-engine.com'})[0]
+      assert.equal 'http://beta.et-engine.com/api/v3/', etm.api.path('')
+
+describe 'ApiGateway', ->
+  # ----- api_path ------------------------------------------------------------
+
+  make_api = (url) ->
+    new ApiGateway({api_path: url})
+
+  it "should assign api_path correctly and catch commong mistakes", ->
+    assert.equal 'http://beta.et-engine.com/api/v3/', make_api('http://beta.et-engine.com').path('')
+    assert.equal 'http://etengine.dev/api/v3/',  make_api('http://etengine.dev/').path('')
+    assert.equal 'http://etengine.dev/api/v3/',  make_api('etengine.dev/').path('')
+    assert.equal 'https://etengine.dev/api/v3/', make_api('https://etengine.dev/').path('')
+
+  it "can only call setPath ones", ->
+    api = new ApiGateway({api_path: 'http://beta.et-engine.com'})
+    api.setPath('http://www.et-engine.com/')
+    assert.equal 'http://beta.et-engine.com/api/v3/', api.path('')
+
+  it "should flag isBeta if it's beta server", ->
+    assert.equal true, make_api('http://beta.et-engine.com').isBeta
+    assert.equal false, make_api('http://www.et-engine.com').isBeta
+    assert.equal false, make_api('http://etengine.dev').isBeta
+
+  it "assigns default options to scenario", ->
+    api = new ApiGateway()
+    assert.equal null, api.scenario_id
+    assert.equal false, api.opts.offline
+
+  it "overwrites default options", ->
+    api = new ApiGateway({
+      scenario_id: 1234,
+      offline: true
+    })
+    assert.equal 1234, api.scenario_id
+    assert.equal true, api.opts.offline
+
+
+  describe 'api/', ->
+    before ->
+      @api = new ApiGateway({api_path: 'etengine.dev'})
+
+    it "#ensure_id() fetches new id", (done) ->
+      api = @api
+      api.ensure_id().done (id) ->
+        assert.equal true, typeof id is 'number'
+        assert.equal id, api.scenario_id
+        done()
+
+    it "#update, gets results. (queries: ['dashboard_total_costs'])", (done) ->
+      console.log(@api.scenario_id)
+      @api.update
+        queries: ['dashboard_total_costs']
+        success: (data) ->
+          assert.equal true, typeof data.results.dashboard_total_costs.present is 'number'
+          done()
+
+
 
 
 describe 'Etmodel.ResultFormatter', ->

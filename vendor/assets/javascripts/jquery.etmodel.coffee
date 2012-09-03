@@ -70,7 +70,7 @@ class root.Etmodel
       end_year:  $('input[data-etm-end-year]',  @base).attr('data-etm-end-year')  || 2050
       area_code: $('input[data-etm-area-code]', @base).attr('data-etm-area-code') || 'nl'
 
-    @api     = new ApiGateway(@settings)
+    @api     = new ApiGateway($.extend @settings, options)
     @inputs  = $('[data-etm-input]',  @base).bind('change', => @update())
     @outputs = $('[data-etm-output]', @base).each (i,el) ->
       $(el).html('...')
@@ -185,7 +185,6 @@ class root.ApiGateway
     # api ajax attributes
     api_path:    'http://www.et-engine.com'
     offline:     false
-    log:         true
     # callbacks
     beforeLoading:  ->
     afterLoading:   ->
@@ -360,10 +359,11 @@ class root.ApiGateway
   setPath: (path, offline = false) ->
     ios4 = navigator.userAgent?.match(/CPU (iPhone )?OS 4_/)
     PATH = if jQuery.support.cors and not ios4 and not offline
-      path
+      # remove trailing slash "et-engine.com/"
+      path.replace(/\/$/, '')
     else
       '/ete'
-
+    PATH = "http://#{PATH}" unless PATH.match(/^http(s)?\:\/\//)
     @isBeta  = path.match(/^https?:\/\/beta\./)?
     @setPath = (->)
 

@@ -46,7 +46,7 @@
         end_year: $('input[data-etm-end-year]', this.base).attr('data-etm-end-year') || 2050,
         area_code: $('input[data-etm-area-code]', this.base).attr('data-etm-area-code') || 'nl'
       };
-      this.api = new ApiGateway(this.settings);
+      this.api = new ApiGateway($.extend(this.settings, options));
       this.inputs = $('[data-etm-input]', this.base).bind('change', function() {
         return _this.update();
       });
@@ -177,7 +177,6 @@
     ApiGateway.prototype.default_options = {
       api_path: 'http://www.et-engine.com',
       offline: false,
-      log: true,
       beforeLoading: function() {},
       afterLoading: function() {},
       defaultErrorHandler: function() {
@@ -338,7 +337,10 @@
         offline = false;
       }
       ios4 = (_ref = navigator.userAgent) != null ? _ref.match(/CPU (iPhone )?OS 4_/) : void 0;
-      PATH = jQuery.support.cors && !ios4 && !offline ? path : '/ete';
+      PATH = jQuery.support.cors && !ios4 && !offline ? path.replace(/\/$/, '') : '/ete';
+      if (!PATH.match(/^http(s)?\:\/\//)) {
+        PATH = "http://" + PATH;
+      }
       this.isBeta = path.match(/^https?:\/\/beta\./) != null;
       return this.setPath = (function() {});
     };

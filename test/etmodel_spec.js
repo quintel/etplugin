@@ -29,11 +29,87 @@
         assert.equal('de', this.etm.settings.area_code);
         return assert.equal('2030', this.etm.settings.end_year);
       });
-      return it("should find inputs", function() {
+      it("should find inputs", function() {
         return assert.equal(2, this.etm.inputs.length);
+      });
+      return it("should assign api_path correctly", function() {
+        var etm;
+        etm = $('#scenario1').etmodel({
+          api_path: 'http://beta.et-engine.com'
+        })[0];
+        return assert.equal('http://beta.et-engine.com/api/v3/', etm.api.path(''));
       });
     });
   }
+
+  describe('ApiGateway', function() {
+    var make_api;
+    make_api = function(url) {
+      return new ApiGateway({
+        api_path: url
+      });
+    };
+    it("should assign api_path correctly and catch commong mistakes", function() {
+      assert.equal('http://beta.et-engine.com/api/v3/', make_api('http://beta.et-engine.com').path(''));
+      assert.equal('http://etengine.dev/api/v3/', make_api('http://etengine.dev/').path(''));
+      assert.equal('http://etengine.dev/api/v3/', make_api('etengine.dev/').path(''));
+      return assert.equal('https://etengine.dev/api/v3/', make_api('https://etengine.dev/').path(''));
+    });
+    it("can only call setPath ones", function() {
+      var api;
+      api = new ApiGateway({
+        api_path: 'http://beta.et-engine.com'
+      });
+      api.setPath('http://www.et-engine.com/');
+      return assert.equal('http://beta.et-engine.com/api/v3/', api.path(''));
+    });
+    it("should flag isBeta if it's beta server", function() {
+      assert.equal(true, make_api('http://beta.et-engine.com').isBeta);
+      assert.equal(false, make_api('http://www.et-engine.com').isBeta);
+      return assert.equal(false, make_api('http://etengine.dev').isBeta);
+    });
+    it("assigns default options to scenario", function() {
+      var api;
+      api = new ApiGateway();
+      assert.equal(null, api.scenario_id);
+      return assert.equal(false, api.opts.offline);
+    });
+    it("overwrites default options", function() {
+      var api;
+      api = new ApiGateway({
+        scenario_id: 1234,
+        offline: true
+      });
+      assert.equal(1234, api.scenario_id);
+      return assert.equal(true, api.opts.offline);
+    });
+    return describe('api/', function() {
+      before(function() {
+        return this.api = new ApiGateway({
+          api_path: 'etengine.dev'
+        });
+      });
+      it("#ensure_id() fetches new id", function(done) {
+        var api;
+        api = this.api;
+        return api.ensure_id().done(function(id) {
+          assert.equal(true, typeof id === 'number');
+          assert.equal(id, api.scenario_id);
+          return done();
+        });
+      });
+      return it("#update, gets results. (queries: ['dashboard_total_costs'])", function(done) {
+        console.log(this.api.scenario_id);
+        return this.api.update({
+          queries: ['dashboard_total_costs'],
+          success: function(data) {
+            assert.equal(true, typeof data.results.dashboard_total_costs.present === 'number');
+            return done();
+          }
+        });
+      });
+    });
+  });
 
   describe('Etmodel.ResultFormatter', function() {
     var format_result, result;
