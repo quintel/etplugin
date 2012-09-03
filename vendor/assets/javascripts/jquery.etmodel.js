@@ -161,7 +161,7 @@
 
   })();
 
-  this.ApiGateway = (function() {
+  root.ApiGateway = (function() {
     var PATH, VERSION;
 
     PATH = null;
@@ -175,7 +175,7 @@
     ApiGateway.prototype.isBeta = false;
 
     ApiGateway.prototype.default_options = {
-      api_path: 'http://beta.et-engine.com',
+      api_path: 'http://www.et-engine.com',
       offline: false,
       log: true,
       beforeLoading: function() {},
@@ -353,6 +353,7 @@
 
   if (typeof exports !== 'undefined') {
     exports.Etmodel = Etmodel;
+    exports.ApiGateway = ApiGateway;
   }
 
 }).call(this);

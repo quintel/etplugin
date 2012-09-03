@@ -166,7 +166,7 @@ class Etmodel.ResultFormatter
 #     api.scenario_id
 #
 #
-class @ApiGateway
+class root.ApiGateway
   PATH = null
   VERSION = '0.1'
 
@@ -183,7 +183,7 @@ class @ApiGateway
 
   default_options:
     # api ajax attributes
-    api_path:    'http://beta.et-engine.com'
+    api_path:    'http://www.et-engine.com'
     offline:     false
     log:         true
     # callbacks
@@ -375,4 +375,6 @@ class @ApiGateway
   path: (suffix) -> "#{ PATH }/api/v3/#{ suffix }"
 
 
-if typeof(exports) != 'undefined' then exports.Etmodel = Etmodel
+if typeof(exports) != 'undefined'
+  exports.Etmodel    = Etmodel
+  exports.ApiGateway = ApiGateway

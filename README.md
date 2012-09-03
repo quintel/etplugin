@@ -34,10 +34,11 @@ to your site:
 
     <head>
       <script type<script src="jquery.js" type="text/javascript"></script>
+      <script type<script src="jquery.ajaxqueue.js" type="text/javascript"></script>
       <script type<script src="jquery.etmodel.js" type="text/javascript"></script>
     </head>
 
-Then you can start using user variables on any plain form objects, such as:
+Then you can start using user variables on any plain form objects.
 
 
 ## ApiGateway
@@ -98,6 +99,44 @@ In the same request we can define queries that should be returned:
 #### Get slider values (start,min,max)
 
     api.user_values(success: (data) -> console.log(data) )
+
+
+
+## Testing
+
+Tests are written using the mocha testing framework (http://visionmedia.github.com/mocha/).
+
+Installing mocha:
+
+    $ npm install -g mocha
+
+Running tests on console (excl. jquery tests).
+
+    $ mocha test/
+
+To run tests in the browser it is easiest to set up an own "server" using pow:
+
+### Opening tests and example files with Pow
+
+Easiest is to create symlink inside your etplugin folder to itself.
+
+    $ ln -s /path/to/quintel/etplugin public
+
+Check that ls -lh looks like this:
+
+    $ ls -lh
+    ...
+    lrwxr-xr-x  1 seb  staff    28B Sep  3 15:41 public -> /Users/seb/quintel/etplugin/
+    ...
+
+Then add your etplugin to Pow:
+
+    $ ln -s /path/to/quintel/etplugin/ /path/to/.pow/etplugin
+
+Now open your browser:
+
+    http://etplugin.dev/test/test.html
+
 
 ### Error handling
 

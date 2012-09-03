@@ -1,36 +1,44 @@
 root = global ? window
 
 if require?
-  assert  = require("assert")
-  Etmodel = require('../vendor/assets/javascripts/jquery.etmodel.js').Etmodel
+  # Code for running tests on command line
+  assert     = require("assert")
+  Etmodel    = require('../vendor/assets/javascripts/jquery.etmodel.js').Etmodel
+  ApiGateway = require('../vendor/assets/javascripts/jquery.etmodel.js').ApiGateway
 else
-  Etmodel = root.Etmodel
-  assert = root.assert
+  # Includes for running tests in a browser
+  Etmodel    = root.Etmodel
+  ApiGateway = root.ApiGateway
+  assert     = root.assert
 
-format_result = (value, format) ->
-  new Etmodel.ResultFormatter(value, format).value()
+if $? # Run only if jquery is included. e.g. not when running it on a console.
+  describe "$().etmodel()", ->
+    before ->
+      ApiGateway.prototype.call_api = ->
+      @etm = $('#scenario1').etmodel()[0]
 
-result = (present, future) ->
-  {present: present, future: future}
+    it "should assign default settings", ->
+      @etmdefault = $('#scenario-defaults').etmodel()[0]
+      assert.equal 'nl', @etmdefault.settings.area_code
+      assert.equal '2050', @etmdefault.settings.end_year
 
-describe "$().etmodel()", ->
-  before ->
-    ApiGateway.prototype.call_api = ->
-    @etm = $('#scenario1').etmodel()[0]
+    it "should overwrite settings", ->
+      assert.equal 'de', @etm.settings.area_code
+      assert.equal '2030', @etm.settings.end_year
 
-  it "should assign default settings", ->
-    @etmdefault = $('#scenario-defaults').etmodel()[0]
-    assert.equal 'nl', @etmdefault.settings.area_code
-    assert.equal '2050', @etmdefault.settings.end_year
+    it "should find inputs", ->
+      assert.equal 2, @etm.inputs.length
 
-  it "should overwrite settings", ->
-    assert.equal 'de', @etm.settings.area_code
-    assert.equal '2030', @etm.settings.end_year
-
-  it "should find inputs", ->
-    assert.equal 2, @etm.inputs.length
 
 describe 'Etmodel.ResultFormatter', ->
+  # format_result( 1.23455, 'round')
+  format_result = (value, format) ->
+    new Etmodel.ResultFormatter(value, format).value()
+
+  # Shortcut to mimick a result set.
+  result = (present, future) ->
+    {present: present, future: future}
+
   before ->
     @res = result(10,15)
 
