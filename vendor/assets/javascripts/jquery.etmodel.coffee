@@ -36,14 +36,20 @@ root = global ? window
 #      <span ... data-etm-round="2">
 #
 #
-if ($?)
+if ($?) # makes testing easier.
   $.fn.extend
     etmodel: (options = {}) ->
       self = $.fn.etmodel
       # opts = $.extend {}, self.default_options, options
+      scenarios = []
       $(this).each (i, el) ->
         etm = new Etmodel(el, options)
+        scenarios.push etm
         etm.update()
+      scenarios
+
+else
+  console?.warn?("jQuery not yet included")
 
 class root.Etmodel
   # Initializes an etmodel scenario inside the @base
@@ -61,7 +67,7 @@ class root.Etmodel
     @base = $(base)
 
     @settings =
-      end_year:  $('input[data-etm-end-year]',  @base).attr('data-etm-end-year')   || 2050
+      end_year:  $('input[data-etm-end-year]',  @base).attr('data-etm-end-year')  || 2050
       area_code: $('input[data-etm-area-code]', @base).attr('data-etm-area-code') || 'nl'
 
     @api     = new ApiGateway(@settings)

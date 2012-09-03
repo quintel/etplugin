@@ -23,6 +23,25 @@
     };
   };
 
+  describe("$().etmodel()", function() {
+    before(function() {
+      ApiGateway.prototype.call_api = function() {};
+      return this.etm = $('#scenario1').etmodel()[0];
+    });
+    it("should assign default settings", function() {
+      this.etmdefault = $('#scenario-defaults').etmodel()[0];
+      assert.equal('nl', this.etmdefault.settings.area_code);
+      return assert.equal('2050', this.etmdefault.settings.end_year);
+    });
+    it("should overwrite settings", function() {
+      assert.equal('de', this.etm.settings.area_code);
+      return assert.equal('2030', this.etm.settings.end_year);
+    });
+    return it("should find inputs", function() {
+      return assert.equal(2, this.etm.inputs.length);
+    });
+  });
+
   describe('Etmodel.ResultFormatter', function() {
     before(function() {
       return this.res = result(10, 15);

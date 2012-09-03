@@ -9,18 +9,27 @@
   if ((typeof $ !== "undefined" && $ !== null)) {
     $.fn.extend({
       etmodel: function(options) {
-        var self;
+        var scenarios, self;
         if (options == null) {
           options = {};
         }
         self = $.fn.etmodel;
-        return $(this).each(function(i, el) {
+        scenarios = [];
+        $(this).each(function(i, el) {
           var etm;
           etm = new Etmodel(el, options);
+          scenarios.push(etm);
           return etm.update();
         });
+        return scenarios;
       }
     });
+  } else {
+    if (typeof console !== "undefined" && console !== null) {
+      if (typeof console.warn === "function") {
+        console.warn("jQuery not yet included");
+      }
+    }
   }
 
   root.Etmodel = (function() {

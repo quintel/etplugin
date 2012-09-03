@@ -13,6 +13,23 @@ format_result = (value, format) ->
 result = (present, future) ->
   {present: present, future: future}
 
+describe "$().etmodel()", ->
+  before ->
+    ApiGateway.prototype.call_api = ->
+    @etm = $('#scenario1').etmodel()[0]
+
+  it "should assign default settings", ->
+    @etmdefault = $('#scenario-defaults').etmodel()[0]
+    assert.equal 'nl', @etmdefault.settings.area_code
+    assert.equal '2050', @etmdefault.settings.end_year
+
+  it "should overwrite settings", ->
+    assert.equal 'de', @etm.settings.area_code
+    assert.equal '2030', @etm.settings.end_year
+
+  it "should find inputs", ->
+    assert.equal 2, @etm.inputs.length
+
 describe 'Etmodel.ResultFormatter', ->
   before ->
     @res = result(10,15)

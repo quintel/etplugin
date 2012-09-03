@@ -4,6 +4,7 @@
   <title>Mocha Tests</title>
   <link rel="stylesheet" href="vendor/mocha.css" />
   <script src="vendor/jquery.min.js"></script>
+  <script src="../vendor/assets/javascripts/jquery.ajaxqueue.js"></script>
   <script src="vendor/assert.js"></script>
   <script src="vendor/mocha.js"></script>
   <script>
@@ -19,5 +20,16 @@
 </head>
 <body>
   <div id="mocha"></div>
+  <div style='display:none'>
+    <div id="scenario1">
+      <input type="hidden" data-etm-area-code="de"  />
+      <input type="hidden" data-etm-end-year="2030" />
+      <input type="text" data-etm-input="foo" value="2.0" />
+      <input type="text" data-etm-input="bar" value="2.0" />
+
+    </div>
+    <div id="scenario-defaults">
+    </div>
+  </div>
 </body>
 </html>
