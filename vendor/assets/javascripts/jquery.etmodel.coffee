@@ -349,8 +349,10 @@ class root.ApiGateway
   # extracts only keys relevant for settings from hsh
   pickSettings: (hsh) ->
     result = {}
-    for key in ['area_code', 'end_year', 'preset_id', 'use_fce']
+    for key in ['area_code', 'end_year', 'preset_id', 'use_fce', 'source']
       result[key] = hsh[key]
+    if hsh.preset_scenario_id
+      result.scenario_id = hsh.preset_scenario_id
     result
 
   # Sets the path used when sending API requests to ETEngine. Self-destructs
