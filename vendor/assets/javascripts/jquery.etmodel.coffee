@@ -357,6 +357,7 @@ class root.ApiGateway
 
   # Sets the path used when sending API requests to ETEngine. Self-destructs
   # after the first time it is called.
+  # This hard-coded stuff from ETFlex should better be removed
   #
   setPath: (path, offline = false) ->
     ios4 = navigator.userAgent?.match(/CPU (iPhone )?OS 4_/)
@@ -365,7 +366,6 @@ class root.ApiGateway
       path.replace(/\/$/, '')
     else
       '/ete'
-    PATH = "http://#{PATH}" unless PATH.match(/^http(s)?\:\/\//)
     @isBeta  = path.match(/^https?:\/\/beta\./)?
     @setPath = (->)
 

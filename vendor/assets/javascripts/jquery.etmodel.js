@@ -316,7 +316,6 @@
       if (offline == null) offline = false;
       ios4 = (_ref = navigator.userAgent) != null ? _ref.match(/CPU (iPhone )?OS 4_/) : void 0;
       PATH = jQuery.support.cors && !ios4 && !offline ? path.replace(/\/$/, '') : '/ete';
-      if (!PATH.match(/^http(s)?\:\/\//)) PATH = "http://" + PATH;
       this.isBeta = path.match(/^https?:\/\/beta\./) != null;
       return this.setPath = (function() {});
     };
