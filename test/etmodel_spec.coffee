@@ -86,12 +86,12 @@ describe 'ApiGateway', ->
     describe 'cors support', ->
       after  -> jQuery.support.cors = true
 
-      it "calls proxy server when offline: true", ->
+      it "always use proxy when cors = false", ->
         jQuery.support.cors = false
         assert.equal '/ete/api/v3/', new ApiGateway({api_path: 'ete.dev', offline: true}).path('')
         assert.equal '/ete/api/v3/', new ApiGateway({api_path: 'ete.dev', offline: false}).path('')
 
-      it "calls proxy server when offline: true", ->
+      it "when cors = true use proxy only when offline", ->
         jQuery.support.cors = true
         assert.equal '/ete/api/v3/',    new ApiGateway({api_path: 'ete.dev', offline: true}).path('')
         assert.notEqual '/ete/api/v3/', new ApiGateway({api_path: 'ete.dev', offline: false}).path('')
@@ -162,7 +162,7 @@ describe 'ApiGateway', ->
           assert.ok data.foo_demand.min < data.foo_demand.max
           done()
 
-    it "#changeSettings: end_year: 2030", (done) ->
+    it "#changeScenario: end_year: 2030", (done) ->
       api = @api
       api.changeScenario
         attributes: {end_year: 2030}
@@ -170,6 +170,20 @@ describe 'ApiGateway', ->
           assert.equal 2030, api.settings.end_year
           assert.equal 2030, data.end_year
           done()
+
+    it "#resetScenario: end_year: 2030", (done) ->
+      api = new ApiGateway({api_path: 'http://localhost:3000', preset_scenario_id: 2999})
+      api.user_values
+        success: (data) ->
+          # make sure we work with correct data: preset_scenario_id
+          assert.equal 10, data.foo_demand.user
+          api.resetScenario
+            success: (data) ->
+              # scenario has been reset, now check that user_values have changed too:
+              api.user_values
+                success: (data) ->
+                  assert.notEqual 10, data.foo_demand.user
+                  done()
 
 describe 'Etmodel.ResultFormatter', ->
   # format_result( 1.23455, 'round')

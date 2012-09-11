@@ -241,7 +241,11 @@ class root.ApiGateway
 
   # resets all slider settings also the ones from a preset scenario.
   # keeps area_code, end_year, use_fce and peak_load settings
-  resetScenario: ->
+  resetScenario: ({success, error}) ->
+    @ensure_id().done (id) =>
+      url = @path "scenarios/#{id}"
+      @__call_api__(url, {reset: 1}, success, error, {type: 'PUT'} )
+
 
   # Currently ajax calls are queued with a simple $.ajaxQueue.
   # TODO: when there's multiple requests in the queue they should be reduced
@@ -355,6 +359,7 @@ class root.ApiGateway
     result = {}
     for key in ['area_code', 'end_year', 'preset_id', 'use_fce', 'source']
       result[key] = hsh[key]
+
     if hsh.preset_scenario_id
       result.scenario_id = hsh.preset_scenario_id
     result

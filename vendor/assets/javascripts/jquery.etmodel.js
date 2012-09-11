@@ -237,7 +237,20 @@
       });
     };
 
-    ApiGateway.prototype.resetScenario = function() {};
+    ApiGateway.prototype.resetScenario = function(_arg) {
+      var error, success,
+        _this = this;
+      success = _arg.success, error = _arg.error;
+      return this.ensure_id().done(function(id) {
+        var url;
+        url = _this.path("scenarios/" + id);
+        return _this.__call_api__(url, {
+          reset: 1
+        }, success, error, {
+          type: 'PUT'
+        });
+      });
+    };
 
     ApiGateway.prototype.update = function(_arg) {
       var error, inputs, queries, settings, success,

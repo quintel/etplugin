@@ -104,7 +104,7 @@
         after(function() {
           return jQuery.support.cors = true;
         });
-        it("calls proxy server when offline: true", function() {
+        it("always use proxy when cors = false", function() {
           jQuery.support.cors = false;
           assert.equal('/ete/api/v3/', new ApiGateway({
             api_path: 'ete.dev',
@@ -115,7 +115,7 @@
             offline: false
           }).path(''));
         });
-        return it("calls proxy server when offline: true", function() {
+        return it("when cors = true use proxy only when offline", function() {
           jQuery.support.cors = true;
           assert.equal('/ete/api/v3/', new ApiGateway({
             api_path: 'ete.dev',
@@ -220,7 +220,7 @@
           }
         });
       });
-      return it("#changeSettings: end_year: 2030", function(done) {
+      it("#changeScenario: end_year: 2030", function(done) {
         var api;
         api = this.api;
         return api.changeScenario({
@@ -231,6 +231,28 @@
             assert.equal(2030, api.settings.end_year);
             assert.equal(2030, data.end_year);
             return done();
+          }
+        });
+      });
+      return it("#resetScenario: end_year: 2030", function(done) {
+        var api;
+        api = new ApiGateway({
+          api_path: 'http://localhost:3000',
+          preset_scenario_id: 2999
+        });
+        return api.user_values({
+          success: function(data) {
+            assert.equal(10, data.foo_demand.user);
+            return api.resetScenario({
+              success: function(data) {
+                return api.user_values({
+                  success: function(data) {
+                    assert.notEqual(10, data.foo_demand.user);
+                    return done();
+                  }
+                });
+              }
+            });
           }
         });
       });
