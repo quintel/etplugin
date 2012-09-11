@@ -233,17 +233,31 @@ class root.ApiGateway
     # return the deferred object, so we can attach callbacks as needed
     @deferred_scenario_id
 
+  # Change attributes of the current scenario, e.g. end_year.
+  #
+  # @example
+  #     api.changeScenario
+  #       attributes: {end_year: 2050}
+  #       success: -> alert('changed')
+  #     # The settings hash will change too.
+  #     api.settings.end_year # => 2050
+  #
   changeScenario: ({attributes, success, error}) ->
     @settings = $.extend @settings, @pickSettings(attributes)
-    @ensure_id().done =>
+
+    @ensure_id().done (id) =>
+      # url = @path "scenarios/#{@scenario_id}"
       url = @path "scenarios"
+      # TODO: handle result arguments
       @__call_api__(url, {scenario: @settings}, success, error, {type: 'POST'} )
 
   # resets all slider settings also the ones from a preset scenario.
   # keeps area_code, end_year, use_fce and peak_load settings
+  #
   resetScenario: ({success, error}) ->
     @ensure_id().done (id) =>
-      url = @path "scenarios/#{id}"
+      url = @path "scenarios/#{@scenario_id}"
+      # TODO: handle result arguments
       @__call_api__(url, {reset: 1}, success, error, {type: 'PUT'} )
 
 
@@ -292,13 +306,14 @@ class root.ApiGateway
 
       @__call_api__(url, params, success_callback, error)
 
-  # Loads scenarios/../inputs.json that contains attributes for
-  # the inputs.
+  # Loads scenarios/../inputs.json that contains attributes for the inputs.
+  #
   user_values: ({success, error}) =>
     @ensure_id().done =>
       $.ajax
         url: @path("scenarios/#{@scenario_id}/inputs.json")
         success : success
+        error: error
         dataType: 'json'
         timeout:  15000
 

@@ -226,7 +226,7 @@
         _this = this;
       attributes = _arg.attributes, success = _arg.success, error = _arg.error;
       this.settings = $.extend(this.settings, this.pickSettings(attributes));
-      return this.ensure_id().done(function() {
+      return this.ensure_id().done(function(id) {
         var url;
         url = _this.path("scenarios");
         return _this.__call_api__(url, {
@@ -243,7 +243,7 @@
       success = _arg.success, error = _arg.error;
       return this.ensure_id().done(function(id) {
         var url;
-        url = _this.path("scenarios/" + id);
+        url = _this.path("scenarios/" + _this.scenario_id);
         return _this.__call_api__(url, {
           reset: 1
         }, success, error, {
@@ -289,6 +289,7 @@
         return $.ajax({
           url: _this.path("scenarios/" + _this.scenario_id + "/inputs.json"),
           success: success,
+          error: error,
           dataType: 'json',
           timeout: 15000
         });

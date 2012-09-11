@@ -211,11 +211,11 @@
           }
         });
       });
-      it("#user_values", function(done) {
+      it("#user_values returns values", function(done) {
         return this.api.user_values({
-          success: function(data) {
-            assert.ok(data);
-            assert.ok(data.foo_demand.min < data.foo_demand.max);
+          success: function(inputs) {
+            assert.ok(inputs);
+            assert.ok(inputs.foo_demand.min < inputs.foo_demand.max);
             return done();
           }
         });
@@ -234,7 +234,7 @@
           }
         });
       });
-      return it("#resetScenario: with a preset_scenario. Will reset all inputs.", function(done) {
+      it("#resetScenario: with a preset_scenario. Will reset all inputs.", function(done) {
         var api;
         api = new ApiGateway({
           api_path: 'http://localhost:3000',
@@ -254,6 +254,44 @@
               }
             });
           }
+        });
+      });
+      return describe('error callbacks for', function() {
+        before(function() {
+          return this.api = new ApiGateway({
+            api_path: 'http://localhost:3000'
+          });
+        });
+        it("#user_values", function(done) {
+          var _this = this;
+          return this.api.ensure_id().done(function(id) {
+            _this.api.scenario_id = void 0;
+            return _this.api.user_values({
+              error: function(data) {
+                assert.ok(data);
+                return done();
+              }
+            });
+          });
+        });
+        return xit("#changeScenario", function(done) {
+          var _this = this;
+          return this.api.ensure_id().done(function(id) {
+            _this.api.scenario_id = void 0;
+            return _this.api.changeScenario({
+              attributes: {
+                end_year: 2000
+              },
+              success: function(data) {
+                assert.ok(false);
+                return done();
+              },
+              error: function(data) {
+                assert.ok(true);
+                return done();
+              }
+            });
+          });
         });
       });
     });

@@ -154,12 +154,12 @@ describe 'ApiGateway', ->
           assert.ok false
           done()
 
-    it "#user_values", (done) ->
+    it "#user_values returns values", (done) ->
       @api.user_values
-        success: (data) ->
-          assert.ok(data)
+        success: (inputs) ->
+          assert.ok(inputs)
           # min/max should always be true (and never break :-)
-          assert.ok data.foo_demand.min < data.foo_demand.max
+          assert.ok inputs.foo_demand.min < inputs.foo_demand.max
           done()
 
     it "#changeScenario: from default end_year to 2030", (done) ->
@@ -170,6 +170,7 @@ describe 'ApiGateway', ->
           assert.equal 2030, api.settings.end_year
           assert.equal 2030, data.end_year
           done()
+
 
     it "#resetScenario: with a preset_scenario. Will reset all inputs.", (done) ->
       api = new ApiGateway({api_path: 'http://localhost:3000', preset_scenario_id: 2999})
@@ -184,6 +185,31 @@ describe 'ApiGateway', ->
                 success: (data) ->
                   assert.notEqual 10, data.foo_demand.user
                   done()
+
+    describe 'error callbacks for', ->
+      before ->
+        @api = new ApiGateway({api_path: 'http://localhost:3000'})
+
+      it "#user_values", (done) ->
+        @api.ensure_id().done (id) =>
+          @api.scenario_id = undefined
+          @api.user_values
+            error: (data) ->
+              assert.ok(data)
+              done()
+
+      xit "#changeScenario", (done) ->
+        @api.ensure_id().done (id) =>
+          @api.scenario_id = undefined
+          @api.changeScenario
+            attributes: {end_year: 2000}
+            success: (data) ->
+              assert.ok false
+              done()
+            error: (data) ->
+              assert.ok true
+              done()
+
 
 describe 'Etmodel.ResultFormatter', ->
   # format_result( 1.23455, 'round')
