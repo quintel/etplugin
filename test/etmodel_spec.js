@@ -211,11 +211,25 @@
           }
         });
       });
-      return it("#user_values", function(done) {
+      it("#user_values", function(done) {
         return this.api.user_values({
           success: function(data) {
             assert.ok(data);
             assert.ok(data.foo_demand.min < data.foo_demand.max);
+            return done();
+          }
+        });
+      });
+      return it("#changeSettings: end_year: 2030", function(done) {
+        var api;
+        api = this.api;
+        return api.changeScenario({
+          attributes: {
+            end_year: 2030
+          },
+          success: function(data) {
+            assert.equal(2030, api.settings.end_year);
+            assert.equal(2030, data.end_year);
             return done();
           }
         });

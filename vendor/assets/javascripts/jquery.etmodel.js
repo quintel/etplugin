@@ -222,9 +222,19 @@
     };
 
     ApiGateway.prototype.changeScenario = function(_arg) {
-      var attributes, error, success;
+      var attributes, error, success,
+        _this = this;
       attributes = _arg.attributes, success = _arg.success, error = _arg.error;
-      return this.settings = $.extend(this.settings, this.pickSettings(attributes));
+      this.settings = $.extend(this.settings, this.pickSettings(attributes));
+      return this.ensure_id().done(function() {
+        var url;
+        url = _this.path("scenarios");
+        return _this.__call_api__(url, {
+          scenario: _this.settings
+        }, success, error, {
+          type: 'POST'
+        });
+      });
     };
 
     ApiGateway.prototype.resetScenario = function() {};

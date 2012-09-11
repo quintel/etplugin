@@ -235,9 +235,9 @@ class root.ApiGateway
 
   changeScenario: ({attributes, success, error}) ->
     @settings = $.extend @settings, @pickSettings(attributes)
-    # @ensure_id().done =>
-    #   url = @path "scenarios"
-    #   @__call_api__(url, {scenario: @settings}, ->, ->, {type: 'POST'} )
+    @ensure_id().done =>
+      url = @path "scenarios"
+      @__call_api__(url, {scenario: @settings}, success, error, {type: 'POST'} )
 
   # resets all slider settings also the ones from a preset scenario.
   # keeps area_code, end_year, use_fce and peak_load settings
@@ -366,10 +366,10 @@ class root.ApiGateway
   setPath: (path, offline = false) ->
     ios4 = navigator.userAgent?.match(/CPU (iPhone )?OS 4_/)
     #  cors | ios4 | offl
-    #   1       0      0  # => ok
-    #   1       1      0  # => /ete
-    #   1       0      1  # => /ete
-    #   0       0      0  # => /ete
+    #   1       0      0   # => ok
+    #   1       1      0   # => /ete
+    #   1       0      1   # => /ete
+    #   0      0/1    0/1  # => /ete
     #
     PATH = if jQuery.support.cors and not ios4 and not offline
       # remove trailing slash "et-engine.com/"

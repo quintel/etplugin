@@ -162,6 +162,15 @@ describe 'ApiGateway', ->
           assert.ok data.foo_demand.min < data.foo_demand.max
           done()
 
+    it "#changeSettings: end_year: 2030", (done) ->
+      api = @api
+      api.changeScenario
+        attributes: {end_year: 2030}
+        success: (data) ->
+          assert.equal 2030, api.settings.end_year
+          assert.equal 2030, data.end_year
+          done()
+
 describe 'Etmodel.ResultFormatter', ->
   # format_result( 1.23455, 'round')
   format_result = (value, format) ->
