@@ -52,7 +52,6 @@
     it("should assign api_path correctly and catch commong mistakes", function() {
       assert.equal('http://beta.et-engine.com/api/v3/', make_api('http://beta.et-engine.com').path(''));
       assert.equal('http://etengine.dev/api/v3/', make_api('http://etengine.dev/').path(''));
-      assert.equal('http://etengine.dev/api/v3/', make_api('etengine.dev/').path(''));
       return assert.equal('https://etengine.dev/api/v3/', make_api('https://etengine.dev/').path(''));
     });
     it("can only call setPath ones", function() {
