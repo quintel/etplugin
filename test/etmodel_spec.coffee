@@ -162,7 +162,7 @@ describe 'ApiGateway', ->
           assert.ok data.foo_demand.min < data.foo_demand.max
           done()
 
-    it "#changeScenario: end_year: 2030", (done) ->
+    it "#changeScenario: from default end_year to 2030", (done) ->
       api = @api
       api.changeScenario
         attributes: {end_year: 2030}
@@ -171,7 +171,7 @@ describe 'ApiGateway', ->
           assert.equal 2030, data.end_year
           done()
 
-    it "#resetScenario: end_year: 2030", (done) ->
+    it "#resetScenario: with a preset_scenario. Will reset all inputs.", (done) ->
       api = new ApiGateway({api_path: 'http://localhost:3000', preset_scenario_id: 2999})
       api.user_values
         success: (data) ->

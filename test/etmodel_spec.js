@@ -220,7 +220,7 @@
           }
         });
       });
-      it("#changeScenario: end_year: 2030", function(done) {
+      it("#changeScenario: from default end_year to 2030", function(done) {
         var api;
         api = this.api;
         return api.changeScenario({
@@ -234,7 +234,7 @@
           }
         });
       });
-      return it("#resetScenario: end_year: 2030", function(done) {
+      return it("#resetScenario: with a preset_scenario. Will reset all inputs.", function(done) {
         var api;
         api = new ApiGateway({
           api_path: 'http://localhost:3000',
