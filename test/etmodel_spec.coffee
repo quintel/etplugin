@@ -14,8 +14,9 @@ else
 if $? # Run only if jquery is included. e.g. not when running it on a console.
   describe "$().etmodel()", ->
     before ->
-      ApiGateway.prototype.call_api = ->
+      # -- mock api calls ---------------
       @etm = $('#scenario1').etmodel()[0]
+      @etm.__call_api__ = ->
 
     it "should assign default settings", ->
       @etmdefault = $('#scenario-defaults').etmodel()[0]
@@ -26,12 +27,25 @@ if $? # Run only if jquery is included. e.g. not when running it on a console.
       assert.equal 'de',   @etm.settings.area_code
       assert.equal '2030', @etm.settings.end_year
 
-    it "should find inputs", ->
+    it "should find inputs and outputs", ->
       assert.equal 2,      @etm.inputs.length
+      assert.equal 2,      @etm.outputs.length
 
     it "should assign api_path correctly", ->
       etm = $('#scenario1').etmodel({api_path: 'http://beta.et-engine.com'})[0]
       assert.equal 'http://beta.et-engine.com/api/v3/', etm.api.path('')
+
+  describe 'integration', ->
+    before ->
+
+    it "when you change a slider it call before and afterLoading", (done) ->
+      @etm = $('#scenario1').etmodel({
+        beforeLoading: (-> done()),
+        afterLoading:  (-> done())
+      })[0]
+      $(@etm.inputs[0]).trigger('change')
+      done()
+
 
 describe 'ApiGateway', ->
   # ----- api_path ------------------------------------------------------------
@@ -39,38 +53,53 @@ describe 'ApiGateway', ->
   make_api = (url) ->
     new ApiGateway({api_path: url})
 
-  it "should assign api_path correctly and catch commong mistakes", ->
-    assert.equal 'http://beta.et-engine.com/api/v3/', make_api('http://beta.et-engine.com').path('')
-    assert.equal 'http://etengine.dev/api/v3/',  make_api('http://etengine.dev/').path('')
-    assert.equal 'https://etengine.dev/api/v3/', make_api('https://etengine.dev/').path('')
+  describe 'api_path', ->
+    it "should assign api_path correctly and catch commong mistakes", ->
+      assert.equal 'http://beta.et-engine.com/api/v3/', make_api('http://beta.et-engine.com').path('')
+      assert.equal 'http://etengine.dev/api/v3/',  make_api('http://etengine.dev/').path('')
+      assert.equal 'http://etengine.dev/api/v3/',  make_api('etengine.dev/').path('')
+      assert.equal 'https://etengine.dev/api/v3/', make_api('https://etengine.dev/').path('')
 
-  it "can only call setPath ones", ->
-    api = new ApiGateway({api_path: 'http://beta.et-engine.com'})
-    api.setPath('http://www.et-engine.com/')
-    assert.equal 'http://beta.et-engine.com/api/v3/', api.path('')
+    it "can only call setPath ones", ->
+      api = new ApiGateway({api_path: 'http://beta.et-engine.com'})
+      api.setPath('http://www.et-engine.com/')
+      assert.equal 'http://beta.et-engine.com/api/v3/', api.path('')
 
-  it "should flag isBeta if it's beta server", ->
-    assert.equal true, make_api('http://beta.et-engine.com').isBeta
-    assert.equal false, make_api('http://www.et-engine.com').isBeta
-    assert.equal false, make_api('http://etengine.dev').isBeta
+    it "should flag isBeta if it's beta server", ->
+      assert.equal true,  make_api('http://beta.et-engine.com').isBeta
+      assert.equal false, make_api('http://www.et-engine.com').isBeta
+      assert.equal false, make_api('http://etengine.dev').isBeta
 
-  it "assigns default options to scenario", ->
-    api = new ApiGateway()
-    assert.equal null, api.scenario_id
-    assert.equal false, api.opts.offline
+    it "assigns default options to scenario", ->
+      api = new ApiGateway()
+      assert.equal null, api.scenario_id
+      assert.equal false, api.opts.offline
 
-  it "overwrites default options", ->
-    api = new ApiGateway({
-      scenario_id: 1234,
-      offline: true
-    })
-    assert.equal 1234, api.scenario_id
-    assert.equal true, api.opts.offline
+    it "overwrites default options", ->
+      api = new ApiGateway({
+        scenario_id: 1234,
+        offline: true
+      })
+      assert.equal 1234, api.scenario_id
+      assert.equal true, api.opts.offline
+
+    describe 'cors support', ->
+      after  -> jQuery.support.cors = true
+
+      it "calls proxy server when offline: true", ->
+        jQuery.support.cors = false
+        assert.equal '/ete/api/v3/', new ApiGateway({api_path: 'ete.dev', offline: true}).path('')
+        assert.equal '/ete/api/v3/', new ApiGateway({api_path: 'ete.dev', offline: false}).path('')
+
+      it "calls proxy server when offline: true", ->
+        jQuery.support.cors = true
+        assert.equal '/ete/api/v3/',    new ApiGateway({api_path: 'ete.dev', offline: true}).path('')
+        assert.notEqual '/ete/api/v3/', new ApiGateway({api_path: 'ete.dev', offline: false}).path('')
 
 
-  describe 'api/', ->
+  describe 'API with etsource fixtures', ->
     before ->
-      @api = new ApiGateway({api_path: 'etengine.dev'})
+      @api = new ApiGateway({api_path: 'http://localhost:3000'})
 
     it "#ensure_id() fetches new id", (done) ->
       api = @api
@@ -79,16 +108,59 @@ describe 'ApiGateway', ->
         assert.equal id, api.scenario_id
         done()
 
-    it "#update, gets results. (queries: ['dashboard_total_costs'])", (done) ->
-      console.log(@api.scenario_id)
+    it "#update queries: ['foo_demand'])", (done) ->
+      @api.ensure_id().done (id) =>
+        @api.update
+          queries: ['foo_demand']
+          success: (data) ->
+            assert.equal true, typeof data.results.foo_demand.present is 'number'
+            done()
+
+    it "#update inputs: foo_demand with valid number updates future demand by that number", (done) ->
       @api.update
-        queries: ['dashboard_total_costs']
+        inputs: {'foo_demand': 3.0}
+        queries: ['foo_demand']
         success: (data) ->
-          assert.equal true, typeof data.results.dashboard_total_costs.present is 'number'
+          assert.ok(data)
           done()
 
+    it "#update success: callback gets {results,inputs,settings}", (done) ->
+      @api.update
+        inputs: {'foo_demand': 3.0}
+        queries: ['foo_demand']
+        success: ({results,inputs,settings}) ->
+          assert.ok results
+          assert.ok results.foo_demand
+          assert.ok inputs
+          assert.ok settings
+          done()
 
+    it "#update inputs: foo_demand with valid number updates future demand by that number", (done) ->
+      @api.update
+        inputs: {'foo_demand': 3.0}
+        queries: ['foo_demand']
+        success: (data) ->
+          assert.ok(data)
+          done()
 
+    it "#update inputs: foo_demand with invalid number calls the supplied error callback", (done) ->
+      @api.update
+        inputs: {'foo_demand': -1.0}
+        error: (data) ->
+          # TODO: error should return an array of error messages
+          assert.ok data
+          done()
+        success: (data) ->
+          assert.ok false
+          done()
+
+    it "#user_values", (done) ->
+      @api.user_values
+        success: (data) ->
+          assert.ok(data)
+          # min/max should always be true (and never break :-)
+          assert.ok data.foo_demand.min < data.foo_demand.max
+          done()
 
 describe 'Etmodel.ResultFormatter', ->
   # format_result( 1.23455, 'round')

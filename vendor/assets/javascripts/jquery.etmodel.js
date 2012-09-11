@@ -180,8 +180,9 @@
       beforeLoading: function() {},
       afterLoading: function() {},
       defaultErrorHandler: function() {
-        console.log("ApiGateway.update Error:");
-        return console.log(arguments);
+        if (typeof console !== "undefined" && console !== null) {
+          return console.log("ApiGateway.update Error:", arguments);
+        }
       }
     };
 
@@ -275,7 +276,7 @@
       var key, result, values, _ref, _ref1;
       result = {
         results: {},
-        inputs: (_ref = data.settings) != null ? _ref.user_values : void 0,
+        inputs: ((_ref = data.settings) != null ? _ref.user_values : void 0) || {},
         settings: data.settings || {}
       };
       _ref1 = data.gqueries;
@@ -340,7 +341,7 @@
         offline = false;
       }
       ios4 = (_ref = navigator.userAgent) != null ? _ref.match(/CPU (iPhone )?OS 4_/) : void 0;
-      PATH = jQuery.support.cors && !ios4 && !offline ? path.replace(/\/$/, '') : '/ete';
+      PATH = jQuery.support.cors && !ios4 && !offline ? (path = path.replace(/\/$/, ''), !path.match(/^http(s)?\:\/\//) ? path = "http://" + path : void 0, path) : '/ete';
       this.isBeta = path.match(/^https?:\/\/beta\./) != null;
       return this.setPath = (function() {});
     };

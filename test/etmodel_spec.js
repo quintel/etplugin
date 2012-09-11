@@ -17,8 +17,8 @@
   if (typeof $ !== "undefined" && $ !== null) {
     describe("$().etmodel()", function() {
       before(function() {
-        ApiGateway.prototype.call_api = function() {};
-        return this.etm = $('#scenario1').etmodel()[0];
+        this.etm = $('#scenario1').etmodel()[0];
+        return this.etm.__call_api__ = function() {};
       });
       it("should assign default settings", function() {
         this.etmdefault = $('#scenario-defaults').etmodel()[0];
@@ -29,8 +29,9 @@
         assert.equal('de', this.etm.settings.area_code);
         return assert.equal('2030', this.etm.settings.end_year);
       });
-      it("should find inputs", function() {
-        return assert.equal(2, this.etm.inputs.length);
+      it("should find inputs and outputs", function() {
+        assert.equal(2, this.etm.inputs.length);
+        return assert.equal(2, this.etm.outputs.length);
       });
       return it("should assign api_path correctly", function() {
         var etm;
@@ -38,6 +39,21 @@
           api_path: 'http://beta.et-engine.com'
         })[0];
         return assert.equal('http://beta.et-engine.com/api/v3/', etm.api.path(''));
+      });
+    });
+    describe('integration', function() {
+      before(function() {});
+      return it("when you change a slider it call before and afterLoading", function(done) {
+        this.etm = $('#scenario1').etmodel({
+          beforeLoading: (function() {
+            return done();
+          }),
+          afterLoading: (function() {
+            return done();
+          })
+        })[0];
+        $(this.etm.inputs[0]).trigger('change');
+        return done();
       });
     });
   }
@@ -49,43 +65,73 @@
         api_path: url
       });
     };
-    it("should assign api_path correctly and catch commong mistakes", function() {
-      assert.equal('http://beta.et-engine.com/api/v3/', make_api('http://beta.et-engine.com').path(''));
-      assert.equal('http://etengine.dev/api/v3/', make_api('http://etengine.dev/').path(''));
-      return assert.equal('https://etengine.dev/api/v3/', make_api('https://etengine.dev/').path(''));
-    });
-    it("can only call setPath ones", function() {
-      var api;
-      api = new ApiGateway({
-        api_path: 'http://beta.et-engine.com'
+    describe('api_path', function() {
+      it("should assign api_path correctly and catch commong mistakes", function() {
+        assert.equal('http://beta.et-engine.com/api/v3/', make_api('http://beta.et-engine.com').path(''));
+        assert.equal('http://etengine.dev/api/v3/', make_api('http://etengine.dev/').path(''));
+        assert.equal('http://etengine.dev/api/v3/', make_api('etengine.dev/').path(''));
+        return assert.equal('https://etengine.dev/api/v3/', make_api('https://etengine.dev/').path(''));
       });
-      api.setPath('http://www.et-engine.com/');
-      return assert.equal('http://beta.et-engine.com/api/v3/', api.path(''));
-    });
-    it("should flag isBeta if it's beta server", function() {
-      assert.equal(true, make_api('http://beta.et-engine.com').isBeta);
-      assert.equal(false, make_api('http://www.et-engine.com').isBeta);
-      return assert.equal(false, make_api('http://etengine.dev').isBeta);
-    });
-    it("assigns default options to scenario", function() {
-      var api;
-      api = new ApiGateway();
-      assert.equal(null, api.scenario_id);
-      return assert.equal(false, api.opts.offline);
-    });
-    it("overwrites default options", function() {
-      var api;
-      api = new ApiGateway({
-        scenario_id: 1234,
-        offline: true
+      it("can only call setPath ones", function() {
+        var api;
+        api = new ApiGateway({
+          api_path: 'http://beta.et-engine.com'
+        });
+        api.setPath('http://www.et-engine.com/');
+        return assert.equal('http://beta.et-engine.com/api/v3/', api.path(''));
       });
-      assert.equal(1234, api.scenario_id);
-      return assert.equal(true, api.opts.offline);
+      it("should flag isBeta if it's beta server", function() {
+        assert.equal(true, make_api('http://beta.et-engine.com').isBeta);
+        assert.equal(false, make_api('http://www.et-engine.com').isBeta);
+        return assert.equal(false, make_api('http://etengine.dev').isBeta);
+      });
+      it("assigns default options to scenario", function() {
+        var api;
+        api = new ApiGateway();
+        assert.equal(null, api.scenario_id);
+        return assert.equal(false, api.opts.offline);
+      });
+      it("overwrites default options", function() {
+        var api;
+        api = new ApiGateway({
+          scenario_id: 1234,
+          offline: true
+        });
+        assert.equal(1234, api.scenario_id);
+        return assert.equal(true, api.opts.offline);
+      });
+      return describe('cors support', function() {
+        after(function() {
+          return jQuery.support.cors = true;
+        });
+        it("calls proxy server when offline: true", function() {
+          jQuery.support.cors = false;
+          assert.equal('/ete/api/v3/', new ApiGateway({
+            api_path: 'ete.dev',
+            offline: true
+          }).path(''));
+          return assert.equal('/ete/api/v3/', new ApiGateway({
+            api_path: 'ete.dev',
+            offline: false
+          }).path(''));
+        });
+        return it("calls proxy server when offline: true", function() {
+          jQuery.support.cors = true;
+          assert.equal('/ete/api/v3/', new ApiGateway({
+            api_path: 'ete.dev',
+            offline: true
+          }).path(''));
+          return assert.notEqual('/ete/api/v3/', new ApiGateway({
+            api_path: 'ete.dev',
+            offline: false
+          }).path(''));
+        });
+      });
     });
-    return describe('api/', function() {
+    return describe('API with etsource fixtures', function() {
       before(function() {
         return this.api = new ApiGateway({
-          api_path: 'etengine.dev'
+          api_path: 'http://localhost:3000'
         });
       });
       it("#ensure_id() fetches new id", function(done) {
@@ -97,12 +143,79 @@
           return done();
         });
       });
-      return it("#update, gets results. (queries: ['dashboard_total_costs'])", function(done) {
-        console.log(this.api.scenario_id);
+      it("#update queries: ['foo_demand'])", function(done) {
+        var _this = this;
+        return this.api.ensure_id().done(function(id) {
+          return _this.api.update({
+            queries: ['foo_demand'],
+            success: function(data) {
+              assert.equal(true, typeof data.results.foo_demand.present === 'number');
+              return done();
+            }
+          });
+        });
+      });
+      it("#update inputs: foo_demand with valid number updates future demand by that number", function(done) {
         return this.api.update({
-          queries: ['dashboard_total_costs'],
+          inputs: {
+            'foo_demand': 3.0
+          },
+          queries: ['foo_demand'],
           success: function(data) {
-            assert.equal(true, typeof data.results.dashboard_total_costs.present === 'number');
+            assert.ok(data);
+            return done();
+          }
+        });
+      });
+      it("#update success: callback gets {results,inputs,settings}", function(done) {
+        return this.api.update({
+          inputs: {
+            'foo_demand': 3.0
+          },
+          queries: ['foo_demand'],
+          success: function(_arg) {
+            var inputs, results, settings;
+            results = _arg.results, inputs = _arg.inputs, settings = _arg.settings;
+            assert.ok(results);
+            assert.ok(results.foo_demand);
+            assert.ok(inputs);
+            assert.ok(settings);
+            return done();
+          }
+        });
+      });
+      it("#update inputs: foo_demand with valid number updates future demand by that number", function(done) {
+        return this.api.update({
+          inputs: {
+            'foo_demand': 3.0
+          },
+          queries: ['foo_demand'],
+          success: function(data) {
+            assert.ok(data);
+            return done();
+          }
+        });
+      });
+      it("#update inputs: foo_demand with invalid number calls the supplied error callback", function(done) {
+        return this.api.update({
+          inputs: {
+            'foo_demand': -1.0
+          },
+          error: function(data) {
+            assert.ok(data);
+            return done();
+          },
+          success: function(data) {
+            assert.ok(false);
+            return done();
+          }
+        });
+      });
+      return it("#user_values", function(done) {
+        return this.api.user_values({
+          success: function(data) {
+            assert.ok(data);
+            assert.ok(data.foo_demand.min < data.foo_demand.max);
             return done();
           }
         });

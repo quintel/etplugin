@@ -190,8 +190,9 @@ class root.ApiGateway
     afterLoading:   ->
     # TODO: requestTimeout: ->
     defaultErrorHandler: ->
-      console.log("ApiGateway.update Error:")
-      console.log(arguments)
+      if console?
+        console.log("ApiGateway.update Error:", arguments)
+
 
 
   constructor: (opts) ->
@@ -223,6 +224,7 @@ class root.ApiGateway
         timeout: 10000
         error: @opts.defaultErrorHandler
       ).pipe (d) -> d.id
+
       # When we first get the scenario id let's save it locally
       @deferred_scenario_id.done (id) =>
         @scenario_id = id
@@ -270,6 +272,7 @@ class root.ApiGateway
         autobalance: true
         scenario:
           user_values: inputs
+
       # omit empty key => null pairs
       params.gqueries = queries  if queries?
       params.settings = settings if settings?
@@ -305,7 +308,7 @@ class root.ApiGateway
   __parse_success__: (data, textStatus, jqXHR) ->
     result =
       results:  {}
-      inputs:   data.settings?.user_values
+      inputs:   data.settings?.user_values || {}
       settings: data.settings || {}
 
     for own key, values of data.gqueries
@@ -342,6 +345,7 @@ class root.ApiGateway
         afterLoading() if ApiGateway.queue.length == 0
         success(data, textStatus, jqXHR)
       .fail (jqXHR, textStatus, err) ->
+        # TODO: error should return an array of error messages
         ApiGateway.queue.pop()
         afterLoading() if ApiGateway.queue.length == 0
         error(jqXHR, textStatus, err)
@@ -361,11 +365,20 @@ class root.ApiGateway
   #
   setPath: (path, offline = false) ->
     ios4 = navigator.userAgent?.match(/CPU (iPhone )?OS 4_/)
+    #  cors | ios4 | offl
+    #   1       0      0  # => ok
+    #   1       1      0  # => /ete
+    #   1       0      1  # => /ete
+    #   0       0      0  # => /ete
+    #
     PATH = if jQuery.support.cors and not ios4 and not offline
       # remove trailing slash "et-engine.com/"
-      path.replace(/\/$/, '')
+      path = path.replace(/\/$/, '')
+      path = "http://#{path}" unless path.match(/^http(s)?\:\/\//)
+      path
     else
       '/ete'
+
     @isBeta  = path.match(/^https?:\/\/beta\./)?
     @setPath = (->)
 
