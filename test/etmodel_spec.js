@@ -174,12 +174,12 @@
           },
           queries: ['foo_demand'],
           success: function(_arg) {
-            var inputs, results, settings;
-            results = _arg.results, inputs = _arg.inputs, settings = _arg.settings;
+            var inputs, results, scenario;
+            results = _arg.results, inputs = _arg.inputs, scenario = _arg.scenario;
             assert.ok(results);
             assert.ok(results.foo_demand);
             assert.ok(inputs);
-            assert.ok(settings);
+            assert.ok(scenario);
             return done();
           }
         });
@@ -220,31 +220,43 @@
           }
         });
       });
-      it("#changeScenario: from default end_year to 2030", function(done) {
-        var api;
+      it("#changeScenario: from default end_year to 2030, also changes scenario_id", function(done) {
+        var api, previous_scenario_id;
         api = this.api;
+        previous_scenario_id = this.api.scenario_id;
         return api.changeScenario({
           attributes: {
             end_year: 2030
           },
           success: function(data) {
+            assert.equal(4, arguments.length);
             assert.equal(2030, api.settings.end_year);
-            assert.equal(2030, data.end_year);
+            assert.equal(2030, data.scenario.end_year);
+            assert.notEqual(previous_scenario_id, data.scenario.id);
+            assert.notEqual(previous_scenario_id, api.scenario_id);
             return done();
           }
         });
       });
       it("#resetScenario: with a preset_scenario. Will reset all inputs.", function(done) {
-        var api;
+        var api, previous_scenario_id;
         api = new ApiGateway({
           api_path: 'http://localhost:3000',
           preset_scenario_id: 2999
+        });
+        previous_scenario_id = null;
+        api.ensure_id().done(function(id) {
+          return previous_scenario_id = api.scenario_id;
         });
         return api.user_values({
           success: function(data) {
             assert.equal(10, data.foo_demand.user);
             return api.resetScenario({
               success: function(data) {
+                assert.equal(4, arguments.length);
+                assert.ok(data.inputs);
+                assert.ok(data.results);
+                assert.equal(previous_scenario_id, data.scenario.id);
                 return api.user_values({
                   success: function(data) {
                     assert.notEqual(10, data.foo_demand.user);

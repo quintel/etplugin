@@ -128,11 +128,11 @@ describe 'ApiGateway', ->
       @api.update
         inputs: {'foo_demand': 3.0}
         queries: ['foo_demand']
-        success: ({results,inputs,settings}) ->
+        success: ({results,inputs,scenario}) ->
           assert.ok results
           assert.ok results.foo_demand
           assert.ok inputs
-          assert.ok settings
+          assert.ok scenario
           done()
 
     it "#update inputs: foo_demand with valid number updates future demand by that number", (done) ->
@@ -162,24 +162,40 @@ describe 'ApiGateway', ->
           assert.ok inputs.foo_demand.min < inputs.foo_demand.max
           done()
 
-    it "#changeScenario: from default end_year to 2030", (done) ->
+    it "#changeScenario: from default end_year to 2030, also changes scenario_id", (done) ->
       api = @api
+      previous_scenario_id = @api.scenario_id
       api.changeScenario
         attributes: {end_year: 2030}
         success: (data) ->
+          assert.equal 4, arguments.length # also contains the original params
           assert.equal 2030, api.settings.end_year
-          assert.equal 2030, data.end_year
+          assert.equal 2030, data.scenario.end_year
+          # It changes scenario_id.
+          assert.notEqual previous_scenario_id, data.scenario.id
+          assert.notEqual previous_scenario_id, api.scenario_id
           done()
 
 
     it "#resetScenario: with a preset_scenario. Will reset all inputs.", (done) ->
       api = new ApiGateway({api_path: 'http://localhost:3000', preset_scenario_id: 2999})
+
+      previous_scenario_id = null
+      api.ensure_id().done (id) ->
+        previous_scenario_id = api.scenario_id
+
       api.user_values
         success: (data) ->
           # make sure we work with correct data: preset_scenario_id
           assert.equal 10, data.foo_demand.user
+
           api.resetScenario
             success: (data) ->
+              assert.equal 4, arguments.length # also contains the original params
+              assert.ok    data.inputs
+              assert.ok    data.results
+              assert.equal previous_scenario_id, data.scenario.id
+
               # scenario has been reset, now check that user_values have changed too:
               api.user_values
                 success: (data) ->

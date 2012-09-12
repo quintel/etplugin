@@ -169,17 +169,15 @@ class Etmodel.ResultFormatter
 class root.ApiGateway
   PATH = null
   VERSION = '0.1'
+  # The result hash a callback can expect
+  # @example
+  #     success = (data) -> $.extend DEFAULT_CALLBACK_ARGS, data
+  DEFAULT_CALLBACK_ARGS = {results: {}, inputs: {}, scenario: {}}
+
 
   # Queue holds api_calls. Currently we simply check whether there are
   # elements in the queue when calling hideLoading().
   @queue: []
-
-  # scenario_id used for etengine api. if null constructor loads
-  # a new scenario.
-  scenario_id: null
-
-  # Using the beta API?
-  isBeta: false
 
   default_options:
     # api ajax attributes
@@ -193,14 +191,14 @@ class root.ApiGateway
       if console?
         console.log("ApiGateway.update Error:", arguments)
 
-
-
   constructor: (opts) ->
-    @opts   = $.extend {}, @default_options, opts
-    @settings = @pickSettings(@opts)
-
-    @scenario_id = @opts.scenario_id || null
+    @applySettings(opts)
     @setPath(@opts.api_path, @opts.offline)
+
+  applySettings: (opts) ->
+    @opts        = $.extend {}, @default_options, opts
+    @settings    = @__pickSettings__(@opts)
+    @scenario_id = @opts.scenario_id || @opts.id || null
 
   # Requests an empty scenario and assigns @scenario_id
   # Wrap things that need a scenario_id inside the ready block.
@@ -233,32 +231,55 @@ class root.ApiGateway
     # return the deferred object, so we can attach callbacks as needed
     @deferred_scenario_id
 
-  # Change attributes of the current scenario, e.g. end_year.
+
+  # It clones the current scenario with the given attributes.
   #
   # @example
+  #     api.scenario_id          # => 20121
   #     api.changeScenario
   #       attributes: {end_year: 2050}
   #       success: -> alert('changed')
   #     # The settings hash will change too.
-  #     api.settings.end_year # => 2050
+  #     api.settings.end_year    # => 2050
+  #     api.scenario_id          # => 20122
   #
   changeScenario: ({attributes, success, error}) ->
-    @settings = $.extend @settings, @pickSettings(attributes)
+    @applySettings(attributes) # scenario_id will also change.
+
+    success_callback = (data, textStatus, jqXHR) =>
+      args = $.extend(DEFAULT_CALLBACK_ARGS, {scenario: data})
+      @applySettings(args.scenario)           # scenario_id changed.
+      success(args, data, textStatus, jqXHR)  # The supplied callback.
 
     @ensure_id().done (id) =>
-      # url = @path "scenarios/#{@scenario_id}"
       url = @path "scenarios"
-      # TODO: handle result arguments
-      @__call_api__(url, {scenario: @settings}, success, error, {type: 'POST'} )
+      params = {scenario: @settings}
+      @__call_api__(url, params, success_callback, error, {type: 'POST'} )
+
 
   # resets all slider settings also the ones from a preset scenario.
   # keeps area_code, end_year, use_fce and peak_load settings
   #
   resetScenario: ({success, error}) ->
+    success_callback = (data, textStatus, jqXHR) ->
+      args = $.extend(DEFAULT_CALLBACK_ARGS, data)
+      success(args, data, textStatus, jqXHR)
+
     @ensure_id().done (id) =>
       url = @path "scenarios/#{@scenario_id}"
-      # TODO: handle result arguments
-      @__call_api__(url, {reset: 1}, success, error, {type: 'PUT'} )
+      @__call_api__(url, {reset: 1}, success_callback, error, {type: 'PUT'} )
+
+
+  # Loads scenarios/../inputs.json that contains attributes for the inputs.
+  #
+  user_values: ({success, error}) =>
+    @ensure_id().done =>
+      $.ajax
+        url: @path("scenarios/#{@scenario_id}/inputs.json")
+        success : success
+        error: error
+        dataType: 'json'
+        timeout:  15000
 
 
   # Currently ajax calls are queued with a simple $.ajaxQueue.
@@ -301,23 +322,13 @@ class root.ApiGateway
       # because I want __call_api__ to be generic. the parsing of results
       # only is needed in this specific request type.
       success_callback = (data, textStatus, jqXHR) =>
-        parsed_results = @__parse_success__(data, textStatus, jqXHR)
-        success(parsed_results, data, textStatus, jqXHR)
+        args = @__parse_success__(data, textStatus, jqXHR)
+        success(args, data, textStatus, jqXHR)
 
       @__call_api__(url, params, success_callback, error)
 
-  # Loads scenarios/../inputs.json that contains attributes for the inputs.
-  #
-  user_values: ({success, error}) =>
-    @ensure_id().done =>
-      $.ajax
-        url: @path("scenarios/#{@scenario_id}/inputs.json")
-        success : success
-        error: error
-        dataType: 'json'
-        timeout:  15000
 
-  # extracts the results and returns a standardised hash.
+  # maps the results from a update call and to the default argument.
   #
   # {
   #   results: {query_key: {present: 12, future: 14, etc}}
@@ -325,15 +336,12 @@ class root.ApiGateway
   #   settings: {...}
   # }
   __parse_success__: (data, textStatus, jqXHR) ->
-    result =
-      results:  {}
-      inputs:   data.settings?.user_values || {}
-      settings: data.settings || {}
+    mapping =
+      results:  data.gqueries
+      inputs:   data.settings?.user_values
+      scenario: data.settings
 
-    for own key, values of data.gqueries
-      result.results[key] = values
-
-    result
+    $.extend DEFAULT_CALLBACK_ARGS, mapping
 
 
   # __call_api should be a general
@@ -360,17 +368,17 @@ class root.ApiGateway
     afterLoading = @opts.afterLoading
     jQuery.ajaxQueue(opts)
       .done (data, textStatus, jqXHR) ->
-        ApiGateway.queue.pop()
-        afterLoading() if ApiGateway.queue.length == 0
         success(data, textStatus, jqXHR)
       .fail (jqXHR, textStatus, err) ->
         # TODO: error should return an array of error messages
+        error(jqXHR, textStatus, err)
+      .always () ->
         ApiGateway.queue.pop()
         afterLoading() if ApiGateway.queue.length == 0
-        error(jqXHR, textStatus, err)
+
 
   # extracts only keys relevant for settings from hsh
-  pickSettings: (hsh) ->
+  __pickSettings__: (hsh) ->
     result = {}
     for key in ['area_code', 'end_year', 'preset_id', 'use_fce', 'source']
       result[key] = hsh[key]

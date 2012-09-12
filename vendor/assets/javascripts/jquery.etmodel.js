@@ -162,17 +162,19 @@
   })();
 
   root.ApiGateway = (function() {
-    var PATH, VERSION;
+    var DEFAULT_CALLBACK_ARGS, PATH, VERSION;
 
     PATH = null;
 
     VERSION = '0.1';
 
+    DEFAULT_CALLBACK_ARGS = {
+      results: {},
+      inputs: {},
+      scenario: {}
+    };
+
     ApiGateway.queue = [];
-
-    ApiGateway.prototype.scenario_id = null;
-
-    ApiGateway.prototype.isBeta = false;
 
     ApiGateway.prototype.default_options = {
       api_path: 'http://www.et-engine.com',
@@ -188,11 +190,15 @@
 
     function ApiGateway(opts) {
       this.user_values = __bind(this.user_values, this);
-      this.opts = $.extend({}, this.default_options, opts);
-      this.settings = this.pickSettings(this.opts);
-      this.scenario_id = this.opts.scenario_id || null;
+      this.applySettings(opts);
       this.setPath(this.opts.api_path, this.opts.offline);
     }
+
+    ApiGateway.prototype.applySettings = function(opts) {
+      this.opts = $.extend({}, this.default_options, opts);
+      this.settings = this.__pickSettings__(this.opts);
+      return this.scenario_id = this.opts.scenario_id || this.opts.id || null;
+    };
 
     ApiGateway.prototype.ensure_id = function() {
       var id,
@@ -222,32 +228,61 @@
     };
 
     ApiGateway.prototype.changeScenario = function(_arg) {
-      var attributes, error, success,
+      var attributes, error, success, success_callback,
         _this = this;
       attributes = _arg.attributes, success = _arg.success, error = _arg.error;
-      this.settings = $.extend(this.settings, this.pickSettings(attributes));
+      this.applySettings(attributes);
+      success_callback = function(data, textStatus, jqXHR) {
+        var args;
+        args = $.extend(DEFAULT_CALLBACK_ARGS, {
+          scenario: data
+        });
+        _this.applySettings(args.scenario);
+        return success(args, data, textStatus, jqXHR);
+      };
       return this.ensure_id().done(function(id) {
-        var url;
+        var params, url;
         url = _this.path("scenarios");
-        return _this.__call_api__(url, {
+        params = {
           scenario: _this.settings
-        }, success, error, {
+        };
+        return _this.__call_api__(url, params, success_callback, error, {
           type: 'POST'
         });
       });
     };
 
     ApiGateway.prototype.resetScenario = function(_arg) {
-      var error, success,
+      var error, success, success_callback,
         _this = this;
       success = _arg.success, error = _arg.error;
+      success_callback = function(data, textStatus, jqXHR) {
+        var args;
+        args = $.extend(DEFAULT_CALLBACK_ARGS, data);
+        return success(args, data, textStatus, jqXHR);
+      };
       return this.ensure_id().done(function(id) {
         var url;
         url = _this.path("scenarios/" + _this.scenario_id);
         return _this.__call_api__(url, {
           reset: 1
-        }, success, error, {
+        }, success_callback, error, {
           type: 'PUT'
+        });
+      });
+    };
+
+    ApiGateway.prototype.user_values = function(_arg) {
+      var error, success,
+        _this = this;
+      success = _arg.success, error = _arg.error;
+      return this.ensure_id().done(function() {
+        return $.ajax({
+          url: _this.path("scenarios/" + _this.scenario_id + "/inputs.json"),
+          success: success,
+          error: error,
+          dataType: 'json',
+          timeout: 15000
         });
       });
     };
@@ -273,43 +308,22 @@
         }
         url = _this.path("scenarios/" + _this.scenario_id);
         success_callback = function(data, textStatus, jqXHR) {
-          var parsed_results;
-          parsed_results = _this.__parse_success__(data, textStatus, jqXHR);
-          return success(parsed_results, data, textStatus, jqXHR);
+          var args;
+          args = _this.__parse_success__(data, textStatus, jqXHR);
+          return success(args, data, textStatus, jqXHR);
         };
         return _this.__call_api__(url, params, success_callback, error);
       });
     };
 
-    ApiGateway.prototype.user_values = function(_arg) {
-      var error, success,
-        _this = this;
-      success = _arg.success, error = _arg.error;
-      return this.ensure_id().done(function() {
-        return $.ajax({
-          url: _this.path("scenarios/" + _this.scenario_id + "/inputs.json"),
-          success: success,
-          error: error,
-          dataType: 'json',
-          timeout: 15000
-        });
-      });
-    };
-
     ApiGateway.prototype.__parse_success__ = function(data, textStatus, jqXHR) {
-      var key, result, values, _ref, _ref1;
-      result = {
-        results: {},
-        inputs: ((_ref = data.settings) != null ? _ref.user_values : void 0) || {},
-        settings: data.settings || {}
+      var mapping, _ref;
+      mapping = {
+        results: data.gqueries,
+        inputs: (_ref = data.settings) != null ? _ref.user_values : void 0,
+        scenario: data.settings
       };
-      _ref1 = data.gqueries;
-      for (key in _ref1) {
-        if (!__hasProp.call(_ref1, key)) continue;
-        values = _ref1[key];
-        result.results[key] = values;
-      }
-      return result;
+      return $.extend(DEFAULT_CALLBACK_ARGS, mapping);
     };
 
     ApiGateway.prototype.__call_api__ = function(url, params, success, error, ajaxOptions) {
@@ -331,21 +345,18 @@
       ApiGateway.queue.push('call_api');
       afterLoading = this.opts.afterLoading;
       return jQuery.ajaxQueue(opts).done(function(data, textStatus, jqXHR) {
-        ApiGateway.queue.pop();
-        if (ApiGateway.queue.length === 0) {
-          afterLoading();
-        }
         return success(data, textStatus, jqXHR);
       }).fail(function(jqXHR, textStatus, err) {
+        return error(jqXHR, textStatus, err);
+      }).always(function() {
         ApiGateway.queue.pop();
         if (ApiGateway.queue.length === 0) {
-          afterLoading();
+          return afterLoading();
         }
-        return error(jqXHR, textStatus, err);
       });
     };
 
-    ApiGateway.prototype.pickSettings = function(hsh) {
+    ApiGateway.prototype.__pickSettings__ = function(hsh) {
       var key, result, _i, _len, _ref;
       result = {};
       _ref = ['area_code', 'end_year', 'preset_id', 'use_fce', 'source'];
