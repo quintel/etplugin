@@ -42,15 +42,16 @@
       this.handle_result = __bind(this.handle_result, this);
 
       this.base = $(base);
-      this.settings = {
+      this.scenario = {
         end_year: $('input[data-etm-end-year]', this.base).attr('data-etm-end-year') || 2050,
         area_code: $('input[data-etm-area-code]', this.base).attr('data-etm-area-code') || 'nl'
       };
-      this.api = new ApiGateway($.extend(this.settings, options));
+      this.api = new ApiGateway($.extend(this.scenario, options));
       this.inputs = $('[data-etm-input]', this.base).bind('change', function() {
         return _this.update();
       });
-      this.outputs = $('[data-etm-output]', this.base).each(function(i, el) {
+      this.outputs = $('[data-etm-output]', this.base);
+      this.outputs.each(function(i, el) {
         return $(el).html('...');
       });
     }
@@ -73,23 +74,37 @@
     };
 
     Etmodel.prototype.handle_result = function(_arg) {
-      var key, results, values, _results;
+      var key, result, results, _results;
       results = _arg.results;
       _results = [];
       for (key in results) {
         if (!__hasProp.call(results, key)) continue;
-        values = results[key];
+        result = results[key];
         _results.push($("[data-etm-output=" + key + "]", this.base).each(function(i, el) {
-          var format_str, result;
-          format_str = $(el).attr('data-etm-format') || 'future;round';
-          result = new Etmodel.ResultFormatter(values, format_str).value();
-          return $(el).html(result);
+          var callback;
+          callback = $(el).attr('data-etm-update') || 'format';
+          return Etmodel.Callbacks[callback](el, result);
         }));
       }
       return _results;
     };
 
     return Etmodel;
+
+  })();
+
+  Etmodel.Callbacks = (function() {
+
+    function Callbacks() {}
+
+    Callbacks.format = function(element, result) {
+      var format_str;
+      format_str = $(element).attr('data-etm-format') || 'future;round';
+      result = new Etmodel.ResultFormatter(result, format_str).value();
+      return $(element).html(result);
+    };
+
+    return Callbacks;
 
   })();
 
@@ -196,7 +211,7 @@
 
     ApiGateway.prototype.__apply_settings__ = function(opts) {
       this.opts = $.extend({}, this.default_options, opts);
-      this.settings = this.__pickSettings__(this.opts);
+      this.scenario = this.__pick_scenario_settings__(this.opts);
       return this.scenario_id = this.opts.scenario_id || this.opts.id || null;
     };
 
@@ -213,12 +228,12 @@
           url: this.path("scenarios"),
           type: 'POST',
           data: {
-            scenario: this.settings
+            scenario: this.scenario
           },
           timeout: 10000,
           error: this.opts.defaultErrorHandler
-        }).pipe(function(d) {
-          return d.id;
+        }).pipe(function(data) {
+          return data.id;
         });
         this.deferred_scenario_id.done(function(id) {
           return _this.scenario_id = id;
@@ -228,7 +243,7 @@
     };
 
     ApiGateway.prototype.changeScenario = function(_arg) {
-      var attributes, error, success, success_callback,
+      var attributes, error, params, success, success_callback,
         _this = this;
       attributes = _arg.attributes, success = _arg.success, error = _arg.error;
       this.__apply_settings__(attributes);
@@ -240,12 +255,12 @@
         _this.__apply_settings__(args.scenario);
         return success(args, data, textStatus, jqXHR);
       };
+      params = {
+        scenario: this.scenario
+      };
       return this.ensure_id().done(function(id) {
-        var params, url;
+        var url;
         url = _this.path("scenarios");
-        params = {
-          scenario: _this.settings
-        };
         return _this.__call_api__(url, params, success_callback, error, {
           type: 'POST'
         });
@@ -358,7 +373,7 @@
       });
     };
 
-    ApiGateway.prototype.__pickSettings__ = function(hsh) {
+    ApiGateway.prototype.__pick_scenario_settings__ = function(hsh) {
       var key, result, _i, _len, _ref;
       result = {};
       _ref = ['area_code', 'end_year', 'preset_id', 'use_fce', 'source'];

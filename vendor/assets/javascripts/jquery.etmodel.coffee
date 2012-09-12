@@ -69,14 +69,14 @@ class root.Etmodel
   constructor: (base, options = {}) ->
     @base = $(base)
 
-    @settings =
+    @scenario =
       end_year:  $('input[data-etm-end-year]',  @base).attr('data-etm-end-year')  || 2050
       area_code: $('input[data-etm-area-code]', @base).attr('data-etm-area-code') || 'nl'
 
-    @api     = new ApiGateway($.extend @settings, options)
+    @api     = new ApiGateway($.extend @scenario, options)
     @inputs  = $('[data-etm-input]',  @base).bind('change', => @update())
-    @outputs = $('[data-etm-output]', @base).each (i,el) ->
-      $(el).html('...')
+    @outputs = $('[data-etm-output]', @base)
+    @outputs.each (i,el) -> $(el).html('...')
 
   update: ->
     inputs = {}
@@ -94,12 +94,17 @@ class root.Etmodel
 
   # Updates data-etm-output elements with the results from the api call
   handle_result: ({results}) =>
-    for own key, values of results
+    for own key, result of results
       $("[data-etm-output=#{key}]", @base).each (i,el) ->
-        format_str = $(el).attr('data-etm-format') || 'future;round'
-        result     = new Etmodel.ResultFormatter(values, format_str).value()
-        $(el).html(result)
+        callback = $(el).attr('data-etm-update') || 'format'
+        Etmodel.Callbacks[callback](el, result)
 
+class Etmodel.Callbacks
+
+  @format: (element, result) ->
+    format_str = $(element).attr('data-etm-format') || 'future;round'
+    result     = new Etmodel.ResultFormatter(result, format_str).value()
+    $(element).html(result)
 
 # ---- ResultFormatter --------------------------------------------------------
 
@@ -220,7 +225,7 @@ class root.ApiGateway
   #
   __apply_settings__: (opts) ->
     @opts        = $.extend {}, @default_options, opts
-    @settings    = @__pickSettings__(@opts)
+    @scenario    = @__pick_scenario_settings__(@opts)
     @scenario_id = @opts.scenario_id || @opts.id || null
 
 
@@ -242,10 +247,10 @@ class root.ApiGateway
       @deferred_scenario_id = $.ajax(
         url:  @path "scenarios"
         type: 'POST'
-        data: {scenario : @settings }
+        data: {scenario : @scenario }
         timeout: 10000
         error: @opts.defaultErrorHandler
-      ).pipe (d) -> d.id
+      ).pipe (data) -> data.id
 
       # When we first get the scenario id let's save it locally
       @deferred_scenario_id.done (id) =>
@@ -275,9 +280,10 @@ class root.ApiGateway
       @__apply_settings__(args.scenario)           # scenario_id changed.
       success(args, data, textStatus, jqXHR)  # The supplied callback.
 
+    params = {scenario: @scenario}
     @ensure_id().done (id) =>
       url = @path "scenarios"
-      params = {scenario: @settings}
+
       @__call_api__(url, params, success_callback, error, {type: 'POST'} )
 
 
@@ -404,7 +410,7 @@ class root.ApiGateway
 
 
   # extracts only keys relevant for settings from hsh
-  __pickSettings__: (hsh) ->
+  __pick_scenario_settings__: (hsh) ->
     result = {}
     for key in ['area_code', 'end_year', 'preset_id', 'use_fce', 'source']
       result[key] = hsh[key]

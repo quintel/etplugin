@@ -1,5 +1,7 @@
 root = global ? window
 
+TEST_ETENGINE_URL = 'http://localhost:3000'
+
 if require?
   # Code for running tests on command line
   assert     = require("assert")
@@ -19,13 +21,13 @@ if $? # Run only if jquery is included. e.g. not when running it on a console.
       @etm.__call_api__ = ->
 
     it "should assign default settings", ->
-      @etmdefault = $('#scenario-defaults').etmodel()[0]
-      assert.equal 'nl',   @etmdefault.settings.area_code
-      assert.equal '2050', @etmdefault.settings.end_year
+      @etm_default = $('#scenario-defaults').etmodel()[0]
+      assert.equal 'nl',   @etm_default.scenario.area_code
+      assert.equal '2050', @etm_default.scenario.end_year
 
     it "should overwrite settings", ->
-      assert.equal 'de',   @etm.settings.area_code
-      assert.equal '2030', @etm.settings.end_year
+      assert.equal 'de',   @etm.scenario.area_code
+      assert.equal '2030', @etm.scenario.end_year
 
     it "should find inputs and outputs", ->
       assert.equal 2,      @etm.inputs.length
@@ -54,7 +56,7 @@ describe 'ApiGateway', ->
     new ApiGateway({api_path: url})
 
   describe '#__apply_settings__', ->
-    api = make_api 'localhost:3000'
+    api = make_api TEST_ETENGINE_URL
     api.__apply_settings__({id: 212})
     assert.equal 212, api.scenario_id
 
@@ -111,9 +113,9 @@ describe 'ApiGateway', ->
         assert.notEqual '/ete/api/v3/', new ApiGateway({api_path: 'ete.dev', offline: false}).path('')
 
 
-  describe 'API with etsource fixtures', ->
+  describe "API on #{TEST_ETENGINE_URL}", ->
     before ->
-      @api = new ApiGateway({api_path: 'http://localhost:3000'})
+      @api = new ApiGateway({api_path: TEST_ETENGINE_URL})
 
     it "#ensure_id() fetches new id", (done) ->
       api = @api
@@ -183,7 +185,7 @@ describe 'ApiGateway', ->
         attributes: {end_year: 2030}
         success: (data) ->
           assert.equal 4, arguments.length # also contains the original params
-          assert.equal 2030, api.settings.end_year
+          assert.equal 2030, api.scenario.end_year
           assert.equal 2030, data.scenario.end_year
           # It changes scenario_id.
           assert.notEqual previous_scenario_id, data.scenario.id
@@ -192,7 +194,7 @@ describe 'ApiGateway', ->
 
 
     it "#resetScenario: with a preset_scenario. Will reset all inputs.", (done) ->
-      api = new ApiGateway({api_path: 'http://localhost:3000', preset_scenario_id: 2999})
+      api = new ApiGateway({api_path: TEST_ETENGINE_URL, preset_scenario_id: 2999})
 
       previous_scenario_id = null
       api.ensure_id().done (id) ->
@@ -218,7 +220,7 @@ describe 'ApiGateway', ->
 
     describe 'error callbacks for', ->
       before ->
-        @api = new ApiGateway({api_path: 'http://localhost:3000'})
+        @api = new ApiGateway({api_path: TEST_ETENGINE_URL})
 
       it "#user_values", (done) ->
         @api.ensure_id().done (id) =>
@@ -229,6 +231,7 @@ describe 'ApiGateway', ->
               done()
 
       xit "#changeScenario", (done) ->
+        # xitted for now, found no easy way to make an error
         @api.ensure_id().done (id) =>
           @api.scenario_id = undefined
           @api.changeScenario
