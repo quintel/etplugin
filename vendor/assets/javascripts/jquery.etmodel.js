@@ -166,7 +166,7 @@
 
     PATH = null;
 
-    VERSION = '0.1';
+    VERSION = '0.2.2';
 
     DEFAULT_CALLBACK_ARGS = {
       results: {},
@@ -190,11 +190,11 @@
 
     function ApiGateway(opts) {
       this.user_values = __bind(this.user_values, this);
-      this.applySettings(opts);
+      this.__apply_settings__(opts);
       this.setPath(this.opts.api_path, this.opts.offline);
     }
 
-    ApiGateway.prototype.applySettings = function(opts) {
+    ApiGateway.prototype.__apply_settings__ = function(opts) {
       this.opts = $.extend({}, this.default_options, opts);
       this.settings = this.__pickSettings__(this.opts);
       return this.scenario_id = this.opts.scenario_id || this.opts.id || null;
@@ -231,13 +231,13 @@
       var attributes, error, success, success_callback,
         _this = this;
       attributes = _arg.attributes, success = _arg.success, error = _arg.error;
-      this.applySettings(attributes);
+      this.__apply_settings__(attributes);
       success_callback = function(data, textStatus, jqXHR) {
         var args;
         args = $.extend(DEFAULT_CALLBACK_ARGS, {
           scenario: data
         });
-        _this.applySettings(args.scenario);
+        _this.__apply_settings__(args.scenario);
         return success(args, data, textStatus, jqXHR);
       };
       return this.ensure_id().done(function(id) {
@@ -286,6 +286,8 @@
         });
       });
     };
+
+    ApiGateway.prototype.userValues = ApiGateway.prototype.user_values;
 
     ApiGateway.prototype.update = function(_arg) {
       var error, inputs, queries, settings, success,

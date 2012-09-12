@@ -65,6 +65,23 @@
         api_path: url
       });
     };
+    describe('#__apply_settings__', function() {
+      var api;
+      api = make_api('localhost:3000');
+      api.__apply_settings__({
+        id: 212
+      });
+      assert.equal(212, api.scenario_id);
+      api.__apply_settings__({
+        scenario_id: 213
+      });
+      assert.equal(213, api.scenario_id);
+      api.__apply_settings__({
+        scenario_id: 214,
+        id: 215
+      });
+      return assert.equal(214, api.scenario_id);
+    });
     describe('api_path', function() {
       it("should assign api_path correctly and catch commong mistakes", function() {
         assert.equal('http://beta.et-engine.com/api/v3/', make_api('http://beta.et-engine.com').path(''));

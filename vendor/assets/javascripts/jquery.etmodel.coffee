@@ -51,6 +51,9 @@ if ($?) # makes testing easier.
 else
   console?.warn?("jQuery not yet included")
 
+
+# ---- Etmodel ----------------------------------------------------------------
+
 class root.Etmodel
   # Initializes an etmodel scenario inside the @base
   #
@@ -97,6 +100,10 @@ class root.Etmodel
         result     = new Etmodel.ResultFormatter(values, format_str).value()
         $(el).html(result)
 
+
+# ---- ResultFormatter --------------------------------------------------------
+
+
 class Etmodel.ResultFormatter
   constructor: (@result, @format_string="future;round") ->
 
@@ -139,6 +146,9 @@ class Etmodel.ResultFormatter
       Math.round(number * multiplier) / multiplier
 
 
+# ---- ApiGateway -------------------------------------------------------------
+
+
 # ApiGateway connects to the etengine gateway and does all the necessary checks.
 #
 # @example:
@@ -168,7 +178,9 @@ class Etmodel.ResultFormatter
 #
 class root.ApiGateway
   PATH = null
-  VERSION = '0.1'
+
+  VERSION = '0.2.2'
+
   # The result hash a callback can expect
   # @example
   #     success = (data) -> $.extend DEFAULT_CALLBACK_ARGS, data
@@ -191,14 +203,26 @@ class root.ApiGateway
       if console?
         console.log("ApiGateway.update Error:", arguments)
 
+  # @example
+  #     new ApiGateway({scenario_id: 2991})
+  #
   constructor: (opts) ->
-    @applySettings(opts)
+    @__apply_settings__(opts)
     @setPath(@opts.api_path, @opts.offline)
 
-  applySettings: (opts) ->
+
+  # Update settings in local instance. Does not persist.
+  # Use changeScenario instead.
+  #
+  # @example updating scenario id
+  #      api.__apply_settings__({scenario_id: 1})
+  #      api.__apply_settings__({id: 2})
+  #
+  __apply_settings__: (opts) ->
     @opts        = $.extend {}, @default_options, opts
     @settings    = @__pickSettings__(@opts)
     @scenario_id = @opts.scenario_id || @opts.id || null
+
 
   # Requests an empty scenario and assigns @scenario_id
   # Wrap things that need a scenario_id inside the ready block.
@@ -244,11 +268,11 @@ class root.ApiGateway
   #     api.scenario_id          # => 20122
   #
   changeScenario: ({attributes, success, error}) ->
-    @applySettings(attributes) # scenario_id will also change.
+    @__apply_settings__(attributes) # scenario_id will also change.
 
     success_callback = (data, textStatus, jqXHR) =>
       args = $.extend(DEFAULT_CALLBACK_ARGS, {scenario: data})
-      @applySettings(args.scenario)           # scenario_id changed.
+      @__apply_settings__(args.scenario)           # scenario_id changed.
       success(args, data, textStatus, jqXHR)  # The supplied callback.
 
     @ensure_id().done (id) =>
@@ -280,6 +304,8 @@ class root.ApiGateway
         error: error
         dataType: 'json'
         timeout:  15000
+
+  userValues: @prototype.user_values
 
 
   # Currently ajax calls are queued with a simple $.ajaxQueue.

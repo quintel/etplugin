@@ -53,6 +53,20 @@ describe 'ApiGateway', ->
   make_api = (url) ->
     new ApiGateway({api_path: url})
 
+  describe '#__apply_settings__', ->
+    api = make_api 'localhost:3000'
+    api.__apply_settings__({id: 212})
+    assert.equal 212, api.scenario_id
+
+    api.__apply_settings__({scenario_id: 213})
+    assert.equal 213, api.scenario_id
+
+    # scenario_id takes precedence
+    api.__apply_settings__({scenario_id: 214, id: 215})
+    assert.equal 214, api.scenario_id
+
+
+
   describe 'api_path', ->
     it "should assign api_path correctly and catch commong mistakes", ->
       assert.equal 'http://beta.et-engine.com/api/v3/', make_api('http://beta.et-engine.com').path('')
