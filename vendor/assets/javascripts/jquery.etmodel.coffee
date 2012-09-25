@@ -345,8 +345,10 @@ class root.ApiGateway
           user_values: inputs
 
       # omit empty key => null pairs
-      params.gqueries = queries  if queries?
-      params.settings = settings if settings?
+      params.gqueries = queries if queries?
+      if settings?
+        for key, value of @__pick_scenario_settings__(settings)
+          params.scenario[key] = value
 
       url  = @path "scenarios/#{ @scenario_id }"
 
@@ -413,10 +415,11 @@ class root.ApiGateway
   __pick_scenario_settings__: (hsh) ->
     result = {}
     for key in ['area_code', 'end_year', 'preset_id', 'use_fce', 'source']
-      result[key] = hsh[key]
+      result[key] = hsh[key] if hsh[key] isnt undefined
 
     if hsh.preset_scenario_id
       result.scenario_id = hsh.preset_scenario_id
+
     result
 
   # Sets the path used when sending API requests to ETEngine. Self-destructs

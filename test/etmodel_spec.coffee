@@ -132,6 +132,14 @@ describe 'ApiGateway', ->
             assert.equal true, typeof data.results.foo_demand.present is 'number'
             done()
 
+    it "#update settings: use_fce", (done) ->
+      @api.update
+        settings: {use_fce: 1}
+        queries: ['fce_enabled']
+        success: ({results,inputs,scenario}) ->
+          assert.equal(results.fce_enabled.future, 1)
+          done()
+
     it "#update inputs: foo_demand with valid number updates future demand by that number", (done) ->
       @api.update
         inputs: {'foo_demand': 3.0}

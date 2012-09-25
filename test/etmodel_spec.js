@@ -174,6 +174,20 @@
           });
         });
       });
+      it("#update settings: use_fce", function(done) {
+        return this.api.update({
+          settings: {
+            use_fce: 1
+          },
+          queries: ['fce_enabled'],
+          success: function(_arg) {
+            var inputs, results, scenario;
+            results = _arg.results, inputs = _arg.inputs, scenario = _arg.scenario;
+            assert.equal(results.fce_enabled.future, 1);
+            return done();
+          }
+        });
+      });
       it("#update inputs: foo_demand with valid number updates future demand by that number", function(done) {
         return this.api.update({
           inputs: {

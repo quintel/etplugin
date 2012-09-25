@@ -309,7 +309,7 @@
         _this = this;
       inputs = _arg.inputs, queries = _arg.queries, success = _arg.success, error = _arg.error, settings = _arg.settings;
       return this.ensure_id().done(function() {
-        var params, success_callback, url;
+        var key, params, success_callback, url, value, _ref;
         error || (error = _this.opts.defaultErrorHandler);
         params = {
           autobalance: true,
@@ -321,7 +321,11 @@
           params.gqueries = queries;
         }
         if (settings != null) {
-          params.settings = settings;
+          _ref = _this.__pick_scenario_settings__(settings);
+          for (key in _ref) {
+            value = _ref[key];
+            params.scenario[key] = value;
+          }
         }
         url = _this.path("scenarios/" + _this.scenario_id);
         success_callback = function(data, textStatus, jqXHR) {
@@ -379,7 +383,9 @@
       _ref = ['area_code', 'end_year', 'preset_id', 'use_fce', 'source'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         key = _ref[_i];
-        result[key] = hsh[key];
+        if (hsh[key] !== void 0) {
+          result[key] = hsh[key];
+        }
       }
       if (hsh.preset_scenario_id) {
         result.scenario_id = hsh.preset_scenario_id;
