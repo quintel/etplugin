@@ -184,7 +184,7 @@ class Etmodel.ResultFormatter
 class root.ApiGateway
   PATH = null
 
-  VERSION = '0.2.3'
+  VERSION = '0.2.4'
 
   # The result hash a callback can expect
   # @example
@@ -437,9 +437,8 @@ class root.ApiGateway
     PATH = if jQuery.support.cors and not ios4 and not offline
       # remove trailing slash "et-engine.com/"
       path = path.replace(/\/$/, '')
-      path = "http://#{path}" unless path.match(/^http(s)?\:\/\//)
-      path
     else
+      # Hardcoded addresses are bad!
       '/ete'
 
     @isBeta  = path.match(/^https?:\/\/beta\./)?

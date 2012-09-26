@@ -181,7 +181,7 @@
 
     PATH = null;
 
-    VERSION = '0.2.3';
+    VERSION = '0.2.4';
 
     DEFAULT_CALLBACK_ARGS = {
       results: {},
