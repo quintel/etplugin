@@ -196,10 +196,12 @@ class root.ApiGateway
   # elements in the queue when calling hideLoading().
   @queue: []
 
+  # If CORS is not enabled an API proxy is required
   default_options:
     # api ajax attributes
-    api_path:    'http://www.et-engine.com'
-    offline:     false
+    api_path:       'http://www.et-engine.com'
+    api_proxy_path: '/ete'
+    offline:        false
     # callbacks
     beforeLoading:  ->
     afterLoading:   ->
@@ -213,7 +215,7 @@ class root.ApiGateway
   #
   constructor: (opts) ->
     @__apply_settings__(opts)
-    @setPath(@opts.api_path, @opts.offline)
+    @setPath(@opts.api_path, @opts.api_proxy_path, @opts.offline)
 
 
   # Update settings in local instance. Does not persist.
@@ -426,7 +428,7 @@ class root.ApiGateway
   # after the first time it is called.
   # This hard-coded stuff from ETFlex should better be removed
   #
-  setPath: (path, offline = false) ->
+  setPath: (path, proxy_path, offline = false) ->
     ios4 = navigator.userAgent?.match(/CPU (iPhone )?OS 4_/)
     #  cors | ios4 | offl
     #   1       0      0   # => ok
@@ -438,8 +440,7 @@ class root.ApiGateway
       # remove trailing slash "et-engine.com/"
       path = path.replace(/\/$/, '')
     else
-      # Hardcoded addresses are bad!
-      '/ete'
+      proxy_path
 
     @isBeta  = path.match(/^https?:\/\/beta\./)?
     @setPath = (->)

@@ -193,6 +193,7 @@
 
     ApiGateway.prototype.default_options = {
       api_path: 'http://www.et-engine.com',
+      api_proxy_path: '/ete',
       offline: false,
       beforeLoading: function() {},
       afterLoading: function() {},
@@ -206,7 +207,7 @@
     function ApiGateway(opts) {
       this.user_values = __bind(this.user_values, this);
       this.__apply_settings__(opts);
-      this.setPath(this.opts.api_path, this.opts.offline);
+      this.setPath(this.opts.api_path, this.opts.api_proxy_path, this.opts.offline);
     }
 
     ApiGateway.prototype.__apply_settings__ = function(opts) {
@@ -393,13 +394,13 @@
       return result;
     };
 
-    ApiGateway.prototype.setPath = function(path, offline) {
+    ApiGateway.prototype.setPath = function(path, proxy_path, offline) {
       var ios4, _ref;
       if (offline == null) {
         offline = false;
       }
       ios4 = (_ref = navigator.userAgent) != null ? _ref.match(/CPU (iPhone )?OS 4_/) : void 0;
-      PATH = jQuery.support.cors && !ios4 && !offline ? (path = path.replace(/\/$/, ''), !path.match(/^http(s)?\:\/\//) ? path = "http://" + path : void 0, path) : '/ete';
+      PATH = jQuery.support.cors && !ios4 && !offline ? path = path.replace(/\/$/, '') : proxy_path;
       this.isBeta = path.match(/^https?:\/\/beta\./) != null;
       return this.setPath = (function() {});
     };
