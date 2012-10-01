@@ -355,8 +355,6 @@ class root.ApiGateway
         for key, value of @__pick_scenario_settings__(settings)
           params.scenario[key] = value
 
-      console.log("UPDATE: ", id, @scenario_id)
-
       url  = @path "scenarios/#{ @scenario_id }"
 
       # we modifiy the success_callback here and not in __call_api__

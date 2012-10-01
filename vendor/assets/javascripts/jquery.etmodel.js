@@ -331,7 +331,6 @@
             params.scenario[key] = value;
           }
         }
-        console.log("UPDATE: ", id, _this.scenario_id);
         url = _this.path("scenarios/" + _this.scenario_id);
         success_callback = function(data, textStatus, jqXHR) {
           var args;
