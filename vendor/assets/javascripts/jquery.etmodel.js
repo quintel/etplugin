@@ -35,7 +35,8 @@
   root.Etmodel = (function() {
 
     function Etmodel(base, options) {
-      var _this = this;
+      var c, _i, _len, _ref,
+        _this = this;
       if (options == null) {
         options = {};
       }
@@ -54,10 +55,18 @@
       this.outputs.each(function(i, el) {
         return $(el).html('...');
       });
+      this.charts = [];
+      if (typeof Chart !== "undefined" && Chart !== null) {
+        _ref = $('[data-etm-chart]', this.base);
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          c = _ref[_i];
+          this.charts.push(new Chart(c));
+        }
+      }
     }
 
     Etmodel.prototype.update = function() {
-      var inputs, query_keys;
+      var chart, inputs, query_keys, _i, _len, _ref;
       inputs = {};
       this.inputs.each(function(i, el) {
         return inputs[$(el).attr('data-etm-input')] = $(el).val();
@@ -66,6 +75,12 @@
       this.outputs.each(function(i, el) {
         return query_keys.push($(el).attr('data-etm-output'));
       });
+      _ref = this.charts;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        chart = _ref[_i];
+        $.merge(query_keys, chart.gqueries());
+      }
+      console.log(query_keys);
       return this.api.update({
         inputs: inputs,
         queries: $.unique(query_keys),
@@ -74,17 +89,22 @@
     };
 
     Etmodel.prototype.handle_result = function(_arg) {
-      var key, result, results, _results;
+      var chart, key, result, results, _i, _len, _ref, _results;
       results = _arg.results;
-      _results = [];
       for (key in results) {
         if (!__hasProp.call(results, key)) continue;
         result = results[key];
-        _results.push($("[data-etm-output=" + key + "]", this.base).each(function(i, el) {
+        $("[data-etm-output=" + key + "]", this.base).each(function(i, el) {
           var callback;
           callback = $(el).attr('data-etm-update') || 'format';
           return Etmodel.Callbacks[callback](el, result);
-        }));
+        });
+      }
+      _ref = this.charts;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        chart = _ref[_i];
+        _results.push(chart.refresh(results));
       }
       return _results;
     };

@@ -77,6 +77,9 @@ class root.Etmodel
     @inputs  = $('[data-etm-input]',  @base).bind('change', => @update())
     @outputs = $('[data-etm-output]', @base)
     @outputs.each (i,el) -> $(el).html('...')
+    @charts = []
+    if Chart?
+      @charts.push(new Chart(c)) for c in $('[data-etm-chart]', @base)
 
   update: ->
     inputs = {}
@@ -85,6 +88,9 @@ class root.Etmodel
 
     query_keys = []
     @outputs.each (i, el) -> query_keys.push($(el).attr('data-etm-output'))
+
+    $.merge(query_keys, chart.gqueries()) for chart in @charts
+    console.log query_keys
 
     @api.update({
       inputs:  inputs,
@@ -98,6 +104,7 @@ class root.Etmodel
       $("[data-etm-output=#{key}]", @base).each (i,el) ->
         callback = $(el).attr('data-etm-update') || 'format'
         Etmodel.Callbacks[callback](el, result)
+    chart.refresh(results) for chart in @charts
 
 class Etmodel.Callbacks
 
