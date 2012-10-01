@@ -234,6 +234,9 @@
           timeout: 10000,
           error: this.opts.defaultErrorHandler
         }).pipe(function(data) {
+          if (typeof data === 'string') {
+            data = $.parseJSON(data);
+          }
           return data.id;
         });
         this.deferred_scenario_id.done(function(id) {
@@ -309,7 +312,7 @@
       var error, inputs, queries, settings, success,
         _this = this;
       inputs = _arg.inputs, queries = _arg.queries, success = _arg.success, error = _arg.error, settings = _arg.settings;
-      return this.ensure_id().done(function() {
+      return this.ensure_id().done(function(id) {
         var key, params, success_callback, url, value, _ref;
         error || (error = _this.opts.defaultErrorHandler);
         params = {
@@ -328,6 +331,7 @@
             params.scenario[key] = value;
           }
         }
+        console.log("UPDATE: ", id, _this.scenario_id);
         url = _this.path("scenarios/" + _this.scenario_id);
         success_callback = function(data, textStatus, jqXHR) {
           var args;

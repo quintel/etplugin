@@ -249,10 +249,13 @@ class root.ApiGateway
       @deferred_scenario_id = $.ajax(
         url:  @path "scenarios"
         type: 'POST'
-        data: {scenario : @scenario }
+        data: { scenario : @scenario }
         timeout: 10000
         error: @opts.defaultErrorHandler
-      ).pipe (data) -> data.id
+      ).pipe (data) ->
+        if typeof data is 'string' # FF does not parse data...
+          data = $.parseJSON(data)
+        data.id
 
       # When we first get the scenario id let's save it locally
       @deferred_scenario_id.done (id) =>
@@ -338,7 +341,7 @@ class root.ApiGateway
   # and returns results of queries)
   #
   update: ({inputs, queries, success, error, settings}) ->
-    @ensure_id().done =>
+    @ensure_id().done (id) =>
       error ||= @opts.defaultErrorHandler
 
       params =
@@ -351,6 +354,8 @@ class root.ApiGateway
       if settings?
         for key, value of @__pick_scenario_settings__(settings)
           params.scenario[key] = value
+
+      console.log("UPDATE: ", id, @scenario_id)
 
       url  = @path "scenarios/#{ @scenario_id }"
 
