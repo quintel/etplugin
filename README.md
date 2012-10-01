@@ -104,6 +104,7 @@ In the same request we can define queries that should be returned:
 
 ## Testing
 
+
 Tests are written using the mocha testing framework (http://visionmedia.github.com/mocha/).
 
 Installing mocha:
@@ -136,6 +137,15 @@ Then add your etplugin to Pow:
 Now open your browser:
 
     http://etplugin.dev/test/test.html
+
+To make the integration tests work we need to start up a separate etengine server with the etengine/spec/fixtures/etsource loaded. This etsource fixture makes it easy and fast to reliably test features.
+
+Start etengine rails server
+
+    $ cd /path/to/etengine
+    $ ETSOURCE_DIR=spec/fixtures/etsource rails s
+
+Reload `http://etplugin.dev/test/test.html` and the tests should now pass.
 
 
 ### Error handling
