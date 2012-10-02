@@ -19,9 +19,9 @@
       this.gqueries = __bind(this.gqueries, this);
 
       if (options instanceof Element) {
-        this.dom = $(options);
-        this._gqueries = this.dom.data('etm-series').split(',');
-        this.type = this.dom.data('etm-chart');
+        this.container = $(options);
+        this._gqueries = this.container.data('etm-series').split(',');
+        this.type = this.container.data('etm-chart');
       } else {
         this._gqueries = options.series;
         this.type = options.type;
@@ -36,7 +36,7 @@
       if (!view_class) {
         throw "Unsupported chart type";
       }
-      this.view = new view_class(this.dom[0], this._gqueries);
+      this.view = new view_class(this.container[0], this._gqueries);
     }
 
     Chart.prototype.gqueries = function() {
@@ -53,9 +53,16 @@
 
   root.BaseChart = (function() {
 
-    function BaseChart(dom, gqueries) {
+    function BaseChart(container, gqueries) {
+      this.container = container;
       this.gqueries = gqueries;
     }
+
+    BaseChart.prototype.flatten = function(arr) {
+      return $.map(arr, function(x) {
+        return x;
+      });
+    };
 
     return BaseChart;
 
@@ -65,35 +72,111 @@
 
     __extends(StackedBarChart, _super);
 
-    function StackedBarChart(dom, gqueries) {
+    function StackedBarChart(container, gqueries) {
+      this.tallest_column_value = __bind(this.tallest_column_value, this);
+
+      this.prepare_data = __bind(this.prepare_data, this);
+
       this.refresh = __bind(this.refresh, this);
-      StackedBarChart.__super__.constructor.call(this, dom, gqueries);
-      this.container = d3.select(dom).append('div');
+
+      this.render = __bind(this.render, this);
+      StackedBarChart.__super__.constructor.call(this, container, gqueries);
     }
 
     StackedBarChart.prototype.render = function(data) {
-      console.log("End year: " + data.scenario.end_year);
-      this.container.selectAll('div.item').data(this.gqueries, function(d) {
+      var margins, stacked_data, tallest_column,
+        _this = this;
+      margins = {
+        top: 20,
+        bottom: 20,
+        left: 30,
+        right: 40
+      };
+      this.width = 494 - (margins.left + margins.right);
+      this.height = 494 - (margins.top + margins.bottom);
+      this.series_height = 300;
+      this.start_year = 2010;
+      this.end_year = data.scenario.end_year;
+      this.x = d3.scale.ordinal().rangeRoundBands([0, this.width]).domain([this.start_year, this.end_year]);
+      tallest_column = this.tallest_column_value(data);
+      this.y = d3.scale.linear().range([0, this.series_height]).domain([0, tallest_column]);
+      this.y_axis = d3.svg.axis().scale(this.y.copy().range([this.series_height, 0])).ticks(5).tickSize(-420, 10, 0).orient("right");
+      this.stack_method = d3.layout.stack().offset('zero');
+      stacked_data = this.flatten(this.stack_method(this.prepare_data(data)));
+      this.svg = d3.select(this.container).append('svg:svg').attr("height", this.height + margins.top + margins.bottom).attr("width", this.width + margins.left + margins.right).append("svg:g").attr("transform", "translate(" + margins.left + ", " + margins.top + ")");
+      this.svg.selectAll('text.year').data([this.start_year, this.end_year]).enter().append('svg:text').attr('class', 'year').text(function(d) {
         return d;
-      }).enter().append('div').attr('class', 'item').text(function(d) {
-        return d;
+      }).attr('x', function(d) {
+        return _this.x(d) + 10;
+      }).attr('y', this.series_height + 10).attr('dx', 45);
+      this.svg.append("svg:g").attr("class", "y_axis").attr("transform", "translate(" + (this.width - 25) + ", 0)").call(this.y_axis);
+      this.svg.selectAll('rect.serie').data(stacked_data, function(s) {
+        return s.id;
+      }).enter().append('svg:rect').attr('class', 'serie').attr("width", this.x.rangeBand() * 0.5).attr('x', function(s) {
+        return _this.x(s.x) + 10;
+      }).attr('y', function(d) {
+        return _this.series_height - _this.y(d.y0 + d.y);
+      }).attr('height', function(d) {
+        return _this.y(d.y);
+      }).style('fill', function(d) {
+        return 'red';
       });
       return this.rendered = true;
     };
 
     StackedBarChart.prototype.refresh = function(data) {
+      var stacked_data, tallest_column,
+        _this = this;
       if (data == null) {
         data = {};
       }
       if (!this.rendered) {
         this.render(data);
       }
-      console.log('refreshing');
-      return this.container.selectAll('div.item').data(this.gqueries, function(d) {
-        return d;
-      }).text(function(d) {
-        return "" + d + ": " + data.results[d].future;
+      tallest_column = this.tallest_column_value(data);
+      this.y.domain([0, tallest_column]);
+      this.svg.selectAll(".y_axis").transition().call(this.y_axis.scale(this.y.copy().range([this.series_height, 0])));
+      stacked_data = this.flatten(this.stack_method(this.prepare_data(data)));
+      return this.svg.selectAll('rect.serie').data(stacked_data, function(s) {
+        return s.id;
+      }).transition().attr('y', function(d) {
+        return _this.series_height - _this.y(d.y0 + d.y);
+      }).attr('height', function(d) {
+        return _this.y(d.y);
       });
+    };
+
+    StackedBarChart.prototype.prepare_data = function(data) {
+      var g, output, _i, _len, _ref;
+      output = [];
+      _ref = this.gqueries;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        g = _ref[_i];
+        output.push([
+          {
+            x: this.start_year,
+            y: data.results[g].present,
+            id: "" + g + "_present"
+          }, {
+            x: this.end_year,
+            y: data.results[g].future,
+            id: "" + g + "_future"
+          }
+        ]);
+      }
+      return output;
+    };
+
+    StackedBarChart.prototype.tallest_column_value = function(data) {
+      var future, g, present, _i, _len, _ref;
+      present = future = 0;
+      _ref = this.gqueries;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        g = _ref[_i];
+        present += data.results[g].present;
+        future += data.results[g].future;
+      }
+      return Math.max(present, future);
     };
 
     return StackedBarChart;
