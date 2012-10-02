@@ -53,8 +53,9 @@ class root.StackedBarChart extends root.BaseChart
   # Updates values
   #
   refresh: (data = {}) =>
+    console.log data
     @render() unless @rendered
     console.log 'refreshing'
     @container.selectAll('div.item')
       .data(@gqueries, (d) -> d)
-      .text((d) -> "#{d}: #{data[d].future}")
+      .text((d) -> "#{d}: #{data.results[d].future}")

@@ -80,6 +80,7 @@
       if (data == null) {
         data = {};
       }
+      console.log(data);
       if (!this.rendered) {
         this.render();
       }
@@ -87,7 +88,7 @@
       return this.container.selectAll('div.item').data(this.gqueries, function(d) {
         return d;
       }).text(function(d) {
-        return "" + d + ": " + data[d].future;
+        return "" + d + ": " + data.results[d].future;
       });
     };
 

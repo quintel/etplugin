@@ -87,23 +87,23 @@
       });
     };
 
-    Etmodel.prototype.handle_result = function(_arg) {
-      var chart, key, result, results, _i, _len, _ref, _results;
-      results = _arg.results;
-      for (key in results) {
-        if (!__hasProp.call(results, key)) continue;
-        result = results[key];
+    Etmodel.prototype.handle_result = function(data) {
+      var chart, key, result, _i, _len, _ref, _ref1, _results;
+      _ref = data.results;
+      for (key in _ref) {
+        if (!__hasProp.call(_ref, key)) continue;
+        result = _ref[key];
         $("[data-etm-output=" + key + "]", this.base).each(function(i, el) {
           var callback;
           callback = $(el).attr('data-etm-update') || 'format';
           return Etmodel.Callbacks[callback](el, result);
         });
       }
-      _ref = this.charts;
+      _ref1 = this.charts;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        chart = _ref[_i];
-        _results.push(chart.refresh(results));
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        chart = _ref1[_i];
+        _results.push(chart.refresh(data));
       }
       return _results;
     };

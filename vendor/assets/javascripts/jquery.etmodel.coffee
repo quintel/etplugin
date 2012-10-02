@@ -98,12 +98,13 @@ class root.Etmodel
     })
 
   # Updates data-etm-output elements with the results from the api call
-  handle_result: ({results}) =>
-    for own key, result of results
+  handle_result: (data) =>
+    for own key, result of data.results
       $("[data-etm-output=#{key}]", @base).each (i,el) ->
         callback = $(el).attr('data-etm-update') || 'format'
         Etmodel.Callbacks[callback](el, result)
-    chart.refresh(results) for chart in @charts
+    # charts need also scenario data, so they receive the entire response
+    chart.refresh(data) for chart in @charts
 
 class Etmodel.Callbacks
 
