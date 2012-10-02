@@ -365,7 +365,7 @@
       mapping = {
         results: data.gqueries,
         inputs: (_ref = data.settings) != null ? _ref.user_values : void 0,
-        scenario: data.settings
+        scenario: data.scenario
       };
       return $.extend(DEFAULT_CALLBACK_ARGS, mapping);
     };

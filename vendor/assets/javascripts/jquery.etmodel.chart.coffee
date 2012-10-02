@@ -33,28 +33,31 @@ class root.Chart
 # care of the initial rendering, and `refresh`, that updates the data
 #
 class root.BaseChart
+  constructor: (dom, gqueries) ->
+    @gqueries = gqueries
 
 class root.StackedBarChart extends root.BaseChart
   constructor: (dom, gqueries) ->
-    @gqueries = gqueries
-    console.log 'rendering'
+    super(dom, gqueries)
     @container = d3.select(dom)
       .append 'div'
 
+  render: (data) ->
+    # console.log 'rendering'
+    console.log "End year: #{data.scenario.end_year}"
     @container.selectAll('div.item')
       .data(@gqueries, (d) -> d)
       .enter()
       .append('div')
       .attr('class', 'item')
       .text((d) -> d)
-
     @rendered = true
 
   # Updates values
   #
   refresh: (data = {}) =>
-    console.log data
-    @render() unless @rendered
+    # console.log data
+    @render(data) unless @rendered
     console.log 'refreshing'
     @container.selectAll('div.item')
       .data(@gqueries, (d) -> d)

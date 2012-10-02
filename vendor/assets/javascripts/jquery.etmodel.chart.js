@@ -53,7 +53,9 @@
 
   root.BaseChart = (function() {
 
-    function BaseChart() {}
+    function BaseChart(dom, gqueries) {
+      this.gqueries = gqueries;
+    }
 
     return BaseChart;
 
@@ -65,24 +67,26 @@
 
     function StackedBarChart(dom, gqueries) {
       this.refresh = __bind(this.refresh, this);
-      this.gqueries = gqueries;
-      console.log('rendering');
+      StackedBarChart.__super__.constructor.call(this, dom, gqueries);
       this.container = d3.select(dom).append('div');
+    }
+
+    StackedBarChart.prototype.render = function(data) {
+      console.log("End year: " + data.scenario.end_year);
       this.container.selectAll('div.item').data(this.gqueries, function(d) {
         return d;
       }).enter().append('div').attr('class', 'item').text(function(d) {
         return d;
       });
-      this.rendered = true;
-    }
+      return this.rendered = true;
+    };
 
     StackedBarChart.prototype.refresh = function(data) {
       if (data == null) {
         data = {};
       }
-      console.log(data);
       if (!this.rendered) {
-        this.render();
+        this.render(data);
       }
       console.log('refreshing');
       return this.container.selectAll('div.item').data(this.gqueries, function(d) {

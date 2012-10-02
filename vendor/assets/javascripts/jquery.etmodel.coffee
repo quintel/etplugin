@@ -385,7 +385,7 @@ class root.ApiGateway
     mapping =
       results:  data.gqueries
       inputs:   data.settings?.user_values
-      scenario: data.settings
+      scenario: data.scenario
 
     $.extend DEFAULT_CALLBACK_ARGS, mapping
 
