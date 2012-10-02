@@ -90,7 +90,6 @@ class root.Etmodel
     @outputs.each (i, el) -> query_keys.push($(el).attr('data-etm-output'))
 
     $.merge(query_keys, chart.gqueries()) for chart in @charts
-    console.log query_keys
 
     @api.update({
       inputs:  inputs,

@@ -80,7 +80,6 @@
         chart = _ref[_i];
         $.merge(query_keys, chart.gqueries());
       }
-      console.log(query_keys);
       return this.api.update({
         inputs: inputs,
         queries: $.unique(query_keys),
