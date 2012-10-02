@@ -10,6 +10,7 @@
   root.Chart = (function() {
 
     function Chart(options) {
+      var view_class;
       if (options == null) {
         options = {};
       }
@@ -17,16 +18,25 @@
 
       this.gqueries = __bind(this.gqueries, this);
 
-      console.log("New chart!");
       if (options instanceof Element) {
         this.dom = $(options);
         this._gqueries = this.dom.data('etm-series').split(',');
+        this.type = this.dom.data('etm-chart');
       } else {
         this._gqueries = options.series;
+        this.type = options.type;
       }
       this._gqueries = this._gqueries || [];
-      console.log(this._gqueries);
-      this.view = new StackedBarChart(this.dom[0], this._gqueries);
+      view_class = (function() {
+        switch (this.type) {
+          case 'stacked_bar':
+            return StackedBarChart;
+        }
+      }).call(this);
+      if (!view_class) {
+        throw "Unsupported chart type";
+      }
+      this.view = new view_class(this.dom[0], this._gqueries);
     }
 
     Chart.prototype.gqueries = function() {

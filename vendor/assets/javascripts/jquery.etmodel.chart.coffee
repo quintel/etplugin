@@ -5,15 +5,22 @@ class root.Chart
   # object with all the various settings
   #
   constructor: (options = {}) ->
-    console.log "New chart!"
     if options instanceof Element
       @dom = $ options # wrap it in jQuery
       @_gqueries = @dom.data('etm-series').split(',')
+      @type = @dom.data('etm-chart')
     else
       @_gqueries = options.series
+      @type = options.type
+
     @_gqueries = @_gqueries || []
-    console.log @_gqueries
-    @view = new StackedBarChart @dom[0], @_gqueries
+
+    view_class = switch @type
+      when 'stacked_bar' then StackedBarChart
+
+    throw "Unsupported chart type" unless view_class
+
+    @view = new view_class(@dom[0], @_gqueries)
 
   # Returns an array of the gqueries required by the chart
   #
