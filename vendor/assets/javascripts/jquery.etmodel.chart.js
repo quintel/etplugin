@@ -110,6 +110,7 @@
         return _this.x(d) + 10;
       }).attr('y', this.series_height + 10).attr('dx', 45);
       this.svg.append("svg:g").attr("class", "y_axis").attr("transform", "translate(" + (this.width - 25) + ", 0)").call(this.y_axis);
+      this.colors = d3.scale.category20();
       this.svg.selectAll('rect.serie').data(stacked_data, function(s) {
         return s.id;
       }).enter().append('svg:rect').attr('class', 'serie').attr("width", this.x.rangeBand() * 0.5).attr('x', function(s) {
@@ -119,7 +120,7 @@
       }).attr('height', function(d) {
         return _this.y(d.y);
       }).style('fill', function(d) {
-        return 'red';
+        return _this.colors(d.key);
       });
       return this.rendered = true;
     };
@@ -156,11 +157,13 @@
           {
             x: this.start_year,
             y: data.results[g].present,
-            id: "" + g + "_present"
+            id: "" + g + "_present",
+            key: g
           }, {
             x: this.end_year,
             y: data.results[g].future,
-            id: "" + g + "_future"
+            id: "" + g + "_future",
+            key: g
           }
         ]);
       }

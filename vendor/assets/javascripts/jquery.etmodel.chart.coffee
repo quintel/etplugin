@@ -111,6 +111,10 @@ class root.StackedBarChart extends root.BaseChart
       .attr("transform", "translate(#{@width - 25}, 0)")
       .call(@y_axis)
 
+    # Color setup
+    #
+    @colors = d3.scale.category20()
+
     # And finally draw the blocks
     #
     @svg.selectAll('rect.serie')
@@ -121,7 +125,7 @@ class root.StackedBarChart extends root.BaseChart
       .attr('x', (s) => @x(s.x) + 10)
       .attr('y', (d) => @series_height - @y(d.y0 + d.y))
       .attr('height', (d) => @y(d.y))
-      .style('fill', (d) => 'red')
+      .style('fill', (d) => @colors d.key)
 
     @rendered = true
 
@@ -152,8 +156,8 @@ class root.StackedBarChart extends root.BaseChart
     output = []
     for g in @gqueries
       output.push [
-        { x: @start_year, y: data.results[g].present, id: "#{g}_present"},
-        { x: @end_year,   y: data.results[g].future,  id: "#{g}_future"}
+        { x: @start_year, y: data.results[g].present, id: "#{g}_present", key: g},
+        { x: @end_year,   y: data.results[g].future,  id: "#{g}_future",  key: g}
       ]
     output
 
