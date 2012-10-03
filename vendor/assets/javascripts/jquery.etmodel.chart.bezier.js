@@ -12,8 +12,6 @@
     __extends(BezierChart, _super);
 
     function BezierChart(container, gqueries) {
-      this.tallest_column_value = __bind(this.tallest_column_value, this);
-
       this.prepare_data = __bind(this.prepare_data, this);
 
       this.refresh = __bind(this.refresh, this);
@@ -23,7 +21,7 @@
     }
 
     BezierChart.prototype.render = function(data) {
-      var margins, stacked_data, tallest_column,
+      var margins, nested, stacked_data,
         _this = this;
       margins = {
         top: 20,
@@ -36,28 +34,42 @@
       this.series_height = 300;
       this.start_year = 2010;
       this.end_year = data.scenario.end_year;
-      this.x = d3.scale.ordinal().rangeRoundBands([0, this.width]).domain([this.start_year, this.end_year]);
-      tallest_column = this.tallest_column_value(data);
-      this.y = d3.scale.linear().range([0, this.series_height]).domain([0, tallest_column]);
-      this.y_axis = d3.svg.axis().scale(this.y.copy().range([this.series_height, 0])).ticks(5).tickSize(-420, 10, 0).orient("right");
-      this.stack_method = d3.layout.stack().offset('zero');
-      stacked_data = this.flatten(this.stack_method(this.prepare_data(data)));
+      this.x = d3.scale.linear().range([0, this.width - 15]).domain([this.start_year, this.end_year]);
+      this.y = d3.scale.linear().range([0, this.series_height]).domain([0, this.tallest_column_value(data)]);
+      this.inverted_y = this.y.copy().range([this.series_height, 0]);
+      this.y_axis = d3.svg.axis().scale(this.inverted_y).ticks(4).tickSize(-440, 10, 0).orient("right");
+      this.colors = d3.scale.category20();
+      this.stack_method = d3.layout.stack().offset('zero').values(function(d) {
+        return d.values;
+      });
+      this.nest = d3.nest().key(function(d) {
+        return d.id;
+      });
+      nested = this.nest.entries(this.prepare_data(data));
+      stacked_data = this.stack_method(nested);
+      console.log(stacked_data);
+      this.area = d3.svg.area().interpolate('basis').x(function(d) {
+        return _this.x(d.x);
+      }).y0(function(d) {
+        return _this.inverted_y(d.y0);
+      }).y1(function(d) {
+        return _this.inverted_y(d.y0 + d.y);
+      });
       this.svg = d3.select(this.container).append('svg:svg').attr("height", this.height + margins.top + margins.bottom).attr("width", this.width + margins.left + margins.right).append("svg:g").attr("transform", "translate(" + margins.left + ", " + margins.top + ")");
       this.svg.selectAll('text.year').data([this.start_year, this.end_year]).enter().append('svg:text').attr('class', 'year').text(function(d) {
         return d;
-      }).attr('x', function(d) {
-        return _this.x(d) + 10;
-      }).attr('y', this.series_height + 10).attr('dx', 45);
-      this.svg.append("svg:g").attr("class", "y_axis").attr("transform", "translate(" + (this.width - 25) + ", 0)").call(this.y_axis);
-      this.colors = d3.scale.category20();
-      this.svg.selectAll('rect.serie').data(stacked_data, function(s) {
-        return s.id;
-      }).enter().append('svg:rect').attr('class', 'serie').attr("width", this.x.rangeBand() * 0.5).attr('x', function(s) {
-        return _this.x(s.x) + 10;
-      }).attr('y', function(d) {
-        return _this.series_height - _this.y(d.y0 + d.y);
-      }).attr('height', function(d) {
-        return _this.y(d.y);
+      }).attr('x', function(d, i) {
+        if (i === 0) {
+          return -10;
+        } else {
+          return 330;
+        }
+      }).attr('y', this.series_height + 15).attr('dx', 45);
+      this.svg.append("svg:g").attr("class", "y_axis").attr("transform", "translate(" + (this.width - 15) + ", 0)").call(this.y_axis);
+      this.svg.selectAll('path.serie').data(stacked_data, function(s) {
+        return s.key;
+      }).enter().append('svg:path').attr('class', 'serie').attr('d', function(d) {
+        return _this.area(d.values);
       }).style('fill', function(d) {
         return _this.colors(d.key);
       });
@@ -65,7 +77,7 @@
     };
 
     BezierChart.prototype.refresh = function(data) {
-      var stacked_data, tallest_column,
+      var stacked_data, tallest,
         _this = this;
       if (data == null) {
         data = {};
@@ -73,52 +85,59 @@
       if (!this.rendered) {
         this.render(data);
       }
-      tallest_column = this.tallest_column_value(data);
-      this.y.domain([0, tallest_column]);
-      this.svg.selectAll(".y_axis").transition().call(this.y_axis.scale(this.y.copy().range([this.series_height, 0])));
-      stacked_data = this.flatten(this.stack_method(this.prepare_data(data)));
-      return this.svg.selectAll('rect.serie').data(stacked_data, function(s) {
-        return s.id;
-      }).transition().attr('y', function(d) {
-        return _this.series_height - _this.y(d.y0 + d.y);
-      }).attr('height', function(d) {
-        return _this.y(d.y);
+      tallest = this.tallest_column_value(data);
+      this.y = this.y.domain([0, tallest]);
+      this.inverted_y = this.inverted_y.domain([0, tallest]);
+      this.svg.selectAll(".y_axis").transition().call(this.y_axis.scale(this.inverted_y));
+      this.svg.selectAll('g.rule').data(this.y.ticks()).transition().attr('transform', function(d) {
+        return "translate(0, " + (_this.inverted_y(d)) + ")";
+      });
+      stacked_data = this.stack_method(this.nest.entries(this.prepare_data(data)));
+      return this.svg.selectAll('path.serie').data(stacked_data, function(s) {
+        return s.key;
+      }).transition().attr('d', function(d) {
+        return _this.area(d.values);
       });
     };
 
     BezierChart.prototype.prepare_data = function(data) {
-      var g, output, _i, _len, _ref;
+      var future, g, left_stack, max_value, mid_point, mid_stack, mid_year, min_value, output, present, right_stack, _i, _len, _ref;
       output = [];
+      left_stack = 0;
+      mid_stack = 0;
+      right_stack = 0;
       _ref = this.gqueries;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         g = _ref[_i];
+        present = data.results[g].present || 0;
+        future = data.results[g].future || 0;
+        min_value = Math.min(left_stack + present, right_stack + future);
+        max_value = Math.max(left_stack + present, right_stack + future);
+        mid_point = future > present ? present : future;
+        mid_point += mid_stack;
+        mid_point = mid_point < min_value ? min_value : mid_point > max_value ? max_value : mid_point;
+        mid_point -= mid_stack;
+        mid_stack += mid_point;
+        left_stack += present;
+        right_stack += future;
+        mid_year = (this.start_year + this.end_year) / 2;
         output.push([
           {
             x: this.start_year,
-            y: data.results[g].present,
-            id: "" + g + "_present",
-            key: g
+            y: present,
+            id: g
+          }, {
+            x: mid_year,
+            y: mid_point,
+            id: g
           }, {
             x: this.end_year,
-            y: data.results[g].future,
-            id: "" + g + "_future",
-            key: g
+            y: future,
+            id: g
           }
         ]);
       }
-      return output;
-    };
-
-    BezierChart.prototype.tallest_column_value = function(data) {
-      var future, g, present, _i, _len, _ref;
-      present = future = 0;
-      _ref = this.gqueries;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        g = _ref[_i];
-        present += data.results[g].present;
-        future += data.results[g].future;
-      }
-      return Math.max(present, future);
+      return this.flatten(output);
     };
 
     return BezierChart;

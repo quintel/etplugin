@@ -12,8 +12,6 @@
     __extends(StackedBarChart, _super);
 
     function StackedBarChart(container, gqueries) {
-      this.tallest_column_value = __bind(this.tallest_column_value, this);
-
       this.prepare_data = __bind(this.prepare_data, this);
 
       this.refresh = __bind(this.refresh, this);
@@ -107,18 +105,6 @@
         ]);
       }
       return output;
-    };
-
-    StackedBarChart.prototype.tallest_column_value = function(data) {
-      var future, g, present, _i, _len, _ref;
-      present = future = 0;
-      _ref = this.gqueries;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        g = _ref[_i];
-        present += data.results[g].present;
-        future += data.results[g].future;
-      }
-      return Math.max(present, future);
     };
 
     return StackedBarChart;

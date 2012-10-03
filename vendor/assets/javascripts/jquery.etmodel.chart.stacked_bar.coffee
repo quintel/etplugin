@@ -120,12 +120,3 @@ class root.StackedBarChart extends root.BaseChart
         { x: @end_year,   y: data.results[g].future,  id: "#{g}_future",  key: g}
       ]
     output
-
-  # We calculate this to set the upper limitt of the y scale
-  #
-  tallest_column_value: (data) =>
-    present = future = 0
-    for g in @gqueries
-      present += data.results[g].present
-      future  += data.results[g].future
-    Math.max present, future

@@ -40,3 +40,13 @@ class root.BaseChart
 
   # Simple jQuery-based array flattener. Underscore provides a similar method
   flatten: (arr) -> $.map arr, (x) -> x
+
+  # We calculate this to set the upper limit of the y scale
+  #
+  tallest_column_value: (data) =>
+    present = future = 0
+    for g in @gqueries
+      present += data.results[g].present
+      future  += data.results[g].future
+    Math.max present, future
+
