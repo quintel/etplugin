@@ -74,6 +74,7 @@ class root.BezierChart extends root.BaseChart
       .append('svg:svg')
       .attr("height", @height + margins.top + margins.bottom)
       .attr("width", @width + margins.left + margins.right)
+      .attr("class", 'etm-chart stacked_bar')
       .append("svg:g")
       .attr("transform", "translate(#{margins.left}, #{margins.top})")
 

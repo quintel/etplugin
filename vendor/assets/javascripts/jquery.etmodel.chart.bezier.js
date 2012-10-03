@@ -54,7 +54,7 @@
       }).y1(function(d) {
         return _this.inverted_y(d.y0 + d.y);
       });
-      this.svg = d3.select(this.container).append('svg:svg').attr("height", this.height + margins.top + margins.bottom).attr("width", this.width + margins.left + margins.right).append("svg:g").attr("transform", "translate(" + margins.left + ", " + margins.top + ")");
+      this.svg = d3.select(this.container).append('svg:svg').attr("height", this.height + margins.top + margins.bottom).attr("width", this.width + margins.left + margins.right).attr("class", 'etm-chart stacked_bar').append("svg:g").attr("transform", "translate(" + margins.left + ", " + margins.top + ")");
       this.svg.selectAll('text.year').data([this.start_year, this.end_year]).enter().append('svg:text').attr('class', 'year').text(function(d) {
         return d;
       }).attr('x', function(d, i) {
