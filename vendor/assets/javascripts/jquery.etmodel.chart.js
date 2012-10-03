@@ -29,6 +29,8 @@
         switch (this.type) {
           case 'stacked_bar':
             return StackedBarChart;
+          case 'bezier':
+            return BezierChart;
         }
       }).call(this);
       if (!view_class) {

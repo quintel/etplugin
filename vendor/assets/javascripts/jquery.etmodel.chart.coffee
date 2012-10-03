@@ -17,6 +17,7 @@ class root.Chart
 
     view_class = switch @type
       when 'stacked_bar' then StackedBarChart
+      when 'bezier'      then BezierChart
 
     throw "Unsupported chart type" unless view_class
 
