@@ -30,14 +30,14 @@
         right: 40
       };
       this.width = 494 - (margins.left + margins.right);
-      this.height = 494 - (margins.top + margins.bottom);
+      this.height = 400 - (margins.top + margins.bottom);
       this.series_height = 300;
       this.start_year = 2010;
       this.end_year = data.scenario.end_year;
       this.x = d3.scale.linear().range([0, this.width - 15]).domain([this.start_year, this.end_year]);
       this.y = d3.scale.linear().range([0, this.series_height]).domain([0, this.tallest_column_value(data)]);
       this.inverted_y = this.y.copy().range([this.series_height, 0]);
-      this.y_axis = d3.svg.axis().scale(this.inverted_y).ticks(4).tickSize(-440, 10, 0).orient("right");
+      this.y_axis = d3.svg.axis().scale(this.inverted_y).ticks(4).tickSize(-410, 10, 0).orient("right");
       this.colors = d3.scale.category20();
       this.stack_method = d3.layout.stack().offset('zero').values(function(d) {
         return d.values;
@@ -57,13 +57,13 @@
       this.svg = d3.select(this.container).append('svg:svg').attr("height", this.height + margins.top + margins.bottom).attr("width", this.width + margins.left + margins.right).attr("class", 'etm-chart stacked_bar').append("svg:g").attr("transform", "translate(" + margins.left + ", " + margins.top + ")");
       this.svg.selectAll('text.year').data([this.start_year, this.end_year]).enter().append('svg:text').attr('class', 'year').text(function(d) {
         return d;
-      }).attr('x', function(d, i) {
+      }).attr('text-anchor', 'middle').attr('x', function(d, i) {
         if (i === 0) {
-          return -10;
+          return 0;
         } else {
-          return 330;
+          return _this.width - 15;
         }
-      }).attr('y', this.series_height + 15).attr('dx', 45);
+      }).attr('y', this.series_height + 15);
       this.svg.append("svg:g").attr("class", "y_axis").attr("transform", "translate(" + (this.width - 15) + ", 0)").call(this.y_axis);
       this.svg.selectAll('path.serie').data(stacked_data, function(s) {
         return s.key;

@@ -41,11 +41,11 @@
       this.stack_method = d3.layout.stack().offset('zero');
       stacked_data = this.flatten(this.stack_method(this.prepare_data(data)));
       this.svg = d3.select(this.container).append('svg:svg').attr("height", this.height + margins.top + margins.bottom).attr("width", this.width + margins.left + margins.right).attr("class", 'etm-chart stacked_bar').append("svg:g").attr("transform", "translate(" + margins.left + ", " + margins.top + ")");
-      this.svg.selectAll('text.year').data([this.start_year, this.end_year]).enter().append('svg:text').attr('class', 'year').text(function(d) {
+      this.svg.selectAll('text.year').data([this.start_year, this.end_year]).enter().append('svg:text').attr('class', 'year').attr('text-anchor', 'middle').text(function(d) {
         return d;
       }).attr('x', function(d) {
-        return _this.x(d) + 10;
-      }).attr('y', this.series_height + 10).attr('dx', 45);
+        return _this.x(d);
+      }).attr('y', this.series_height + 15).attr('dx', 65);
       this.svg.append("svg:g").attr("class", "y_axis").attr("transform", "translate(" + (this.width - 25) + ", 0)").call(this.y_axis);
       this.colors = d3.scale.category20();
       this.svg.selectAll('rect.serie').data(stacked_data, function(s) {

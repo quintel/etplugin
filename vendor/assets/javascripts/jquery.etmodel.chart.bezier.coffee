@@ -21,7 +21,7 @@ class root.BezierChart extends root.BaseChart
       left: 30
       right: 40
     @width  = 494 - (margins.left + margins.right)
-    @height = 494 - (margins.top + margins.bottom)
+    @height = 400 - (margins.top + margins.bottom)
     @series_height = 300 # max height of the bars
 
     @start_year = 2010
@@ -42,7 +42,7 @@ class root.BezierChart extends root.BaseChart
     @y_axis = d3.svg.axis()
       .scale(@inverted_y)
       .ticks(4)
-      .tickSize(-440, 10, 0)
+      .tickSize(-410, 10, 0)
       .orient("right")
 
     # Color setup
@@ -85,9 +85,9 @@ class root.BezierChart extends root.BaseChart
       .enter().append('svg:text')
       .attr('class', 'year')
       .text((d) -> d)
-      .attr('x', (d, i) => if i == 0 then -10 else 330)
+      .attr('text-anchor', 'middle')
+      .attr('x', (d, i) => if i == 0 then 0 else @width - 15) # chart corners
       .attr('y', @series_height + 15)
-      .attr('dx', 45)
 
     # Draws the y axis
     #

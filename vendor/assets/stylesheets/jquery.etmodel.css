@@ -5,6 +5,7 @@ svg.etm-chart {
     font-size: 12px; }
   svg.etm-chart .x_axis line, svg.etm-chart .x_axis path, svg.etm-chart .y_axis line, svg.etm-chart .y_axis path {
     fill: none;
-    stroke: #333333; }
+    stroke: #333333;
+    stroke-width: 0.5; }
   svg.etm-chart .x_axis .minor, svg.etm-chart .y_axis .minor {
     stroke-opacity: 0.5; }

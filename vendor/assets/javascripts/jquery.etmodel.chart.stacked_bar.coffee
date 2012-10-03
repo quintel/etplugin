@@ -59,10 +59,11 @@ class root.StackedBarChart extends root.BaseChart
       .data([@start_year, @end_year])
       .enter().append('svg:text')
       .attr('class', 'year')
+      .attr('text-anchor', 'middle')
       .text((d) -> d)
-      .attr('x', (d) => @x(d) + 10)
-      .attr('y', @series_height + 10)
-      .attr('dx', 45)
+      .attr('x', (d) => @x(d))
+      .attr('y', @series_height + 15)
+      .attr('dx', 65) # align with the bar
 
     # Draws the y axis
     #
