@@ -47,7 +47,6 @@
       });
       nested = this.nest.entries(this.prepare_data(data));
       stacked_data = this.stack_method(nested);
-      console.log(stacked_data);
       this.area = d3.svg.area().interpolate('basis').x(function(d) {
         return _this.x(d.x);
       }).y0(function(d) {

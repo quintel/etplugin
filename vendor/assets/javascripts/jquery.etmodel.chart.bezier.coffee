@@ -27,7 +27,8 @@ class root.BezierChart extends root.BaseChart
     @start_year = 2010
     @end_year   = data.scenario.end_year
 
-    @x = d3.scale.linear().range([0, @width - 15]) .domain([@start_year, @end_year])
+    @x = d3.scale.linear()
+      .range([0, @width - 15]).domain([@start_year, @end_year])
 
     # Prepares the y scale. The refresh method will take care of updating the
     # domain, that changes every time
@@ -58,7 +59,6 @@ class root.BezierChart extends root.BaseChart
     # Run the stack method on the nested entries
     nested = @nest.entries @prepare_data(data)
     stacked_data = @stack_method(nested)
-    console.log stacked_data
 
     # This method will return the SVG area attributes. The values it receives
     # should be already stacked
