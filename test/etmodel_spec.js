@@ -35,12 +35,28 @@
         assert.equal(2, this.etm.inputs.length);
         return assert.equal(2, this.etm.outputs.length);
       });
-      return it("should assign api_path correctly", function() {
+      it("should assign api_path correctly", function() {
         var etm;
         etm = $('#scenario1').etmodel({
           api_path: 'http://beta.et-engine.com'
         })[0];
         return assert.equal('http://beta.et-engine.com/api/v3/', etm.api.path(''));
+      });
+      return describe("adding a chart", function() {
+        before(function() {
+          return this.chart = this.etm.charts[0];
+        });
+        it("should create a chart", function() {
+          return assert.notEqual(this.chart, void 0);
+        });
+        it("should assign the right chart type", function() {
+          return assert.equal(this.chart.type, 'stacked_bar');
+        });
+        return it("should assign the right chart series", function() {
+          var series;
+          series = ['dashboard_total_costs', 'dashboard_energy_import_netto'];
+          return assert.deepEqual(this.chart.gqueries(), series);
+        });
       });
     });
     describe('integration', function() {

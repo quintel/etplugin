@@ -37,6 +37,20 @@ if $? # Run only if jquery is included. e.g. not when running it on a console.
       etm = $('#scenario1').etmodel({api_path: 'http://beta.et-engine.com'})[0]
       assert.equal 'http://beta.et-engine.com/api/v3/', etm.api.path('')
 
+    describe "adding a chart", ->
+      before ->
+        @chart = @etm.charts[0]
+
+      it "should create a chart", ->
+        assert.notEqual @chart, undefined
+
+      it "should assign the right chart type", ->
+        assert.equal @chart.type, 'stacked_bar'
+
+      it "should assign the right chart series", ->
+        series = ['dashboard_total_costs', 'dashboard_energy_import_netto']
+        assert.deepEqual @chart.gqueries(), series
+
   describe 'integration', ->
     before ->
 
