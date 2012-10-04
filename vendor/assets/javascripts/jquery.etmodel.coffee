@@ -79,7 +79,7 @@ class root.Etmodel
     @outputs.each (i,el) -> $(el).html('...')
     @charts = []
     if Chart?
-      @charts.push(new Chart(c)) for c in $('[data-etm-chart]', @base)
+      @charts.push(new Chart(c)) for c in $('[data-etm-chart-type]', @base)
 
   update: ->
     inputs = {}

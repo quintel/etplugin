@@ -397,4 +397,20 @@
     });
   });
 
+  describe('Chart', function() {
+    before(function() {
+      return this.chart = new Chart({
+        type: 'bezier',
+        series: ['foo', 'bar'],
+        container: "#foo"
+      });
+    });
+    it("should assign the right chart type", function() {
+      return assert.equal(this.chart.type, 'bezier');
+    });
+    return it("should assign the right chart series", function() {
+      return assert.deepEqual(this.chart.gqueries(), ['foo', 'bar']);
+    });
+  });
+
 }).call(this);

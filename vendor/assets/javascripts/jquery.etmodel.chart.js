@@ -18,11 +18,12 @@
 
       if (options instanceof Element) {
         this.container = $(options);
-        this._gqueries = this.container.data('etm-series').split(',');
-        this.type = this.container.data('etm-chart');
+        this._gqueries = this.container.data('etm-chart-series').split(',');
+        this.type = this.container.data('etm-chart-type');
       } else {
         this._gqueries = options.series;
         this.type = options.type;
+        this.container = options.container;
       }
       this._gqueries = this._gqueries || [];
       view_class = (function() {

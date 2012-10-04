@@ -4,14 +4,25 @@ class root.Chart
   # The constructor accepts a DOM element with the proper data attributes or an
   # object with all the various settings
   #
+  # If you're passing an object then the hash options are:
+  #   container - CSS selector of the element that will hold the chart
+  #   series    - array of the gqueries that should be plotted
+  #   type      - chart type (stacked_bar or bezier at the moment)
+  #
+  # If you're passing a DOM element then the options are extracted from the
+  # element attributes:
+  #   etm-chart-type   - chart type
+  #   etm-chart-series - list of gqueries separated by a comma
+  #
   constructor: (options = {}) ->
     if options instanceof Element
       @container = $ options # wrap it in jQuery
-      @_gqueries = @container.data('etm-series').split(',')
-      @type = @container.data('etm-chart')
+      @_gqueries = @container.data('etm-chart-series').split(',')
+      @type = @container.data('etm-chart-type')
     else
       @_gqueries = options.series
       @type = options.type
+      @container = options.container
 
     @_gqueries = @_gqueries || []
 

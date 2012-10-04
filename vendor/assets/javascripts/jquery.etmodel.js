@@ -57,7 +57,7 @@
       });
       this.charts = [];
       if (typeof Chart !== "undefined" && Chart !== null) {
-        _ref = $('[data-etm-chart]', this.base);
+        _ref = $('[data-etm-chart-type]', this.base);
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           c = _ref[_i];
           this.charts.push(new Chart(c));

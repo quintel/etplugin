@@ -300,3 +300,13 @@ describe 'Etmodel.ResultFormatter', ->
     assert.equal(0.5,    format_result(@res, 'delta') )
     assert.equal(50,     format_result(@res, 'delta;percent') )
     assert.equal(28.6,   format_result(result(7,9), 'delta;percent;round:1') )
+
+describe 'Chart', ->
+  before ->
+    @chart = new Chart({type: 'bezier', series: ['foo', 'bar'], container: "#foo"})
+
+  it "should assign the right chart type", ->
+    assert.equal @chart.type, 'bezier'
+
+  it "should assign the right chart series", ->
+    assert.deepEqual @chart.gqueries(), ['foo', 'bar']
