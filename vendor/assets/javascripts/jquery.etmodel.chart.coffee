@@ -48,6 +48,7 @@ class root.BaseChart
   constructor: (container, gqueries) ->
     @container = container
     @gqueries = gqueries
+    @colors = d3.scale.category20()
 
   # Simple jQuery-based array flattener. Underscore provides a similar method
   flatten: (arr) -> $.map arr, (x) -> x

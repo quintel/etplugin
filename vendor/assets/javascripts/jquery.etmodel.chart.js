@@ -60,6 +60,7 @@
       this.tallest_column_value = __bind(this.tallest_column_value, this);
       this.container = container;
       this.gqueries = gqueries;
+      this.colors = d3.scale.category20();
     }
 
     BaseChart.prototype.flatten = function(arr) {

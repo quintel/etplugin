@@ -47,7 +47,6 @@
         return _this.x(d);
       }).attr('y', this.series_height + 15).attr('dx', 65);
       this.svg.append("svg:g").attr("class", "y_axis").attr("transform", "translate(" + (this.width - 25) + ", 0)").call(this.y_axis);
-      this.colors = d3.scale.category20();
       this.svg.selectAll('rect.serie').data(stacked_data, function(s) {
         return s.id;
       }).enter().append('svg:rect').attr('class', 'serie').attr("width", this.x.rangeBand() * 0.5).attr('x', function(s) {

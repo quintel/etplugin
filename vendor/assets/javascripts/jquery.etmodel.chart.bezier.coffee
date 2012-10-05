@@ -47,10 +47,6 @@ class root.BezierChart extends root.BaseChart
       .tickSize(-410, 10, 0)
       .orient("right")
 
-    # Color setup
-    #
-    @colors = d3.scale.category20()
-
     # the stack method will filter the data and calculate the offset for every
     # item. The values function tells this method that the values it will
     # operate on are an array held inside the values member. This member will

@@ -75,10 +75,6 @@ class root.StackedBarChart extends root.BaseChart
       .attr("transform", "translate(#{@width - 25}, 0)")
       .call(@y_axis)
 
-    # Color setup
-    #
-    @colors = d3.scale.category20()
-
     # And finally draw the blocks
     #
     @svg.selectAll('rect.serie')

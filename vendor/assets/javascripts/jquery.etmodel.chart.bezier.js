@@ -38,7 +38,6 @@
       this.y = d3.scale.linear().range([0, this.series_height]).domain([0, this.tallest_column_value(data)]);
       this.inverted_y = this.y.copy().range([this.series_height, 0]);
       this.y_axis = d3.svg.axis().scale(this.inverted_y).ticks(4).tickSize(-410, 10, 0).orient("right");
-      this.colors = d3.scale.category20();
       this.stack_method = d3.layout.stack().offset('zero').values(function(d) {
         return d.values;
       });
