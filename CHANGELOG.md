@@ -1,3 +1,7 @@
+# 0.3
+
+Added basic charts
+
 # 0.2.2
 
 Correct for some errors when passing api_path.

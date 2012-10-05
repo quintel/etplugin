@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="../vendor/assets/stylesheets/jquery.etmodel.css" rel="stylesheet">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="http://d3js.org/d3.v2.min.js"></script>
+    <script src="../vendor/assets/javascripts/jquery.ajaxqueue.js"></script>
+    <script src="../vendor/assets/javascripts/jquery.etmodel.js"></script>
+    <script src="../vendor/assets/javascripts/jquery.etmodel.chart.js"></script>
+    <script src="../vendor/assets/javascripts/jquery.etmodel.chart.stacked_bar.js"></script>
+    <script src="../vendor/assets/javascripts/jquery.etmodel.chart.bezier.js"></script>
+
+    <script>
+    var etm;
+    $(document).ready(function () {
+      $('.etmodel-scenario').etmodel({
+        api_path: 'http://etengine.dev'
+      })
+    });
+    </script>
+
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="span12">
+          <p class="small">This example has to run on a webserver to make ajax calls work</p>
+          <h3>Etmodel plugin example</h3>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span7 etmodel-scenario">
+          <input type="hidden" data-etm-area-code="nl"  />
+          <input type="hidden" data-etm-end-year="2050" />
+          <p class='form-inline'>
+            Population of the Netherlands growth
+            <input type="text" data-etm-input="households_number_of_inhabitants" value="2.0" class="span1"/>%
+            then the total energy cost would increase by
+            <strong data-etm-output="dashboard_total_costs" data-etm-format="delta;percent;round"></strong>%
+            (from
+            <span data-etm-output="dashboard_total_costs"   data-etm-format="present;round"></span>
+            to
+            <strong data-etm-output="dashboard_total_costs" data-etm-format="future;round:3"></strong> billion Euros).
+          </p>
+          <div data-etm-chart-type="stacked_bar" data-etm-chart-series="total_co2_emissions,co2_emissions_of_imported_electricity,co2_emissions_of_used_electricity"></div>
+          <div data-etm-chart-type="bezier" data-etm-chart-series="total_co2_emissions,co2_emissions_of_imported_electricity,co2_emissions_of_used_electricity"></div>
+          <div data-etm-chart-type="bezier" data-etm-chart-series="dashboard_total_costs"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

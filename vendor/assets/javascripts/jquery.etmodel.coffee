@@ -77,6 +77,9 @@ class root.Etmodel
     @inputs  = $('[data-etm-input]',  @base).bind('change', => @update())
     @outputs = $('[data-etm-output]', @base)
     @outputs.each (i,el) -> $(el).html('...')
+    @charts = []
+    if Chart?
+      @charts.push(new Chart(c)) for c in $('[data-etm-chart-type]', @base)
 
   update: ->
     inputs = {}
@@ -86,6 +89,8 @@ class root.Etmodel
     query_keys = []
     @outputs.each (i, el) -> query_keys.push($(el).attr('data-etm-output'))
 
+    $.merge(query_keys, chart.gqueries()) for chart in @charts
+
     @api.update({
       inputs:  inputs,
       queries: $.unique(query_keys),
@@ -93,11 +98,13 @@ class root.Etmodel
     })
 
   # Updates data-etm-output elements with the results from the api call
-  handle_result: ({results}) =>
-    for own key, result of results
+  handle_result: (data) =>
+    for own key, result of data.results
       $("[data-etm-output=#{key}]", @base).each (i,el) ->
         callback = $(el).attr('data-etm-update') || 'format'
         Etmodel.Callbacks[callback](el, result)
+    # charts need also scenario data, so they receive the entire response
+    chart.refresh(data) for chart in @charts
 
 class Etmodel.Callbacks
 
@@ -184,7 +191,7 @@ class Etmodel.ResultFormatter
 class root.ApiGateway
   PATH = null
 
-  VERSION = '0.2.4'
+  VERSION = '0.3'
 
   # The result hash a callback can expect
   # @example
@@ -372,13 +379,13 @@ class root.ApiGateway
   # {
   #   results: {query_key: {present: 12, future: 14, etc}}
   #   inputs:  {123: 0.4}
-  #   settings: {...}
+  #   scenario: {...}
   # }
   __parse_success__: (data, textStatus, jqXHR) ->
     mapping =
       results:  data.gqueries
-      inputs:   data.settings?.user_values
-      scenario: data.settings
+      inputs:   data.scenario.user_values || {}
+      scenario: data.scenario
 
     $.extend DEFAULT_CALLBACK_ARGS, mapping
 

@@ -35,7 +35,8 @@
   root.Etmodel = (function() {
 
     function Etmodel(base, options) {
-      var _this = this;
+      var c, _i, _len, _ref,
+        _this = this;
       if (options == null) {
         options = {};
       }
@@ -54,10 +55,18 @@
       this.outputs.each(function(i, el) {
         return $(el).html('...');
       });
+      this.charts = [];
+      if (typeof Chart !== "undefined" && Chart !== null) {
+        _ref = $('[data-etm-chart-type]', this.base);
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          c = _ref[_i];
+          this.charts.push(new Chart(c));
+        }
+      }
     }
 
     Etmodel.prototype.update = function() {
-      var inputs, query_keys;
+      var chart, inputs, query_keys, _i, _len, _ref;
       inputs = {};
       this.inputs.each(function(i, el) {
         return inputs[$(el).attr('data-etm-input')] = $(el).val();
@@ -66,6 +75,11 @@
       this.outputs.each(function(i, el) {
         return query_keys.push($(el).attr('data-etm-output'));
       });
+      _ref = this.charts;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        chart = _ref[_i];
+        $.merge(query_keys, chart.gqueries());
+      }
       return this.api.update({
         inputs: inputs,
         queries: $.unique(query_keys),
@@ -73,18 +87,23 @@
       });
     };
 
-    Etmodel.prototype.handle_result = function(_arg) {
-      var key, result, results, _results;
-      results = _arg.results;
-      _results = [];
-      for (key in results) {
-        if (!__hasProp.call(results, key)) continue;
-        result = results[key];
-        _results.push($("[data-etm-output=" + key + "]", this.base).each(function(i, el) {
+    Etmodel.prototype.handle_result = function(data) {
+      var chart, key, result, _i, _len, _ref, _ref1, _results;
+      _ref = data.results;
+      for (key in _ref) {
+        if (!__hasProp.call(_ref, key)) continue;
+        result = _ref[key];
+        $("[data-etm-output=" + key + "]", this.base).each(function(i, el) {
           var callback;
           callback = $(el).attr('data-etm-update') || 'format';
           return Etmodel.Callbacks[callback](el, result);
-        }));
+        });
+      }
+      _ref1 = this.charts;
+      _results = [];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        chart = _ref1[_i];
+        _results.push(chart.refresh(data));
       }
       return _results;
     };
@@ -181,7 +200,7 @@
 
     PATH = null;
 
-    VERSION = '0.2.4';
+    VERSION = '0.3';
 
     DEFAULT_CALLBACK_ARGS = {
       results: {},
@@ -342,11 +361,11 @@
     };
 
     ApiGateway.prototype.__parse_success__ = function(data, textStatus, jqXHR) {
-      var mapping, _ref;
+      var mapping;
       mapping = {
         results: data.gqueries,
-        inputs: (_ref = data.settings) != null ? _ref.user_values : void 0,
-        scenario: data.settings
+        inputs: data.scenario.user_values || {},
+        scenario: data.scenario
       };
       return $.extend(DEFAULT_CALLBACK_ARGS, mapping);
     };

@@ -1,0 +1,11 @@
+svg.etm-chart {
+  border: 1px solid #eeeeee; }
+  svg.etm-chart text {
+    font-family: "Lucida Grande", Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12px; }
+  svg.etm-chart .x_axis line, svg.etm-chart .x_axis path, svg.etm-chart .y_axis line, svg.etm-chart .y_axis path {
+    fill: none;
+    stroke: #333333;
+    stroke-width: 0.5; }
+  svg.etm-chart .x_axis .minor, svg.etm-chart .y_axis .minor {
+    stroke-opacity: 0.5; }
