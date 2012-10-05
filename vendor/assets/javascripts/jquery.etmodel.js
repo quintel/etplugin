@@ -361,10 +361,10 @@
     };
 
     ApiGateway.prototype.__parse_success__ = function(data, textStatus, jqXHR) {
-      var mapping, _ref;
+      var mapping;
       mapping = {
         results: data.gqueries,
-        inputs: (_ref = data.settings) != null ? _ref.user_values : void 0,
+        inputs: data.scenario.user_values || {},
         scenario: data.scenario
       };
       return $.extend(DEFAULT_CALLBACK_ARGS, mapping);

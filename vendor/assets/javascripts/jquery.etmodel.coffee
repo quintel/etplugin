@@ -379,12 +379,12 @@ class root.ApiGateway
   # {
   #   results: {query_key: {present: 12, future: 14, etc}}
   #   inputs:  {123: 0.4}
-  #   settings: {...}
+  #   scenario: {...}
   # }
   __parse_success__: (data, textStatus, jqXHR) ->
     mapping =
       results:  data.gqueries
-      inputs:   data.settings?.user_values
+      inputs:   data.scenario.user_values || {}
       scenario: data.scenario
 
     $.extend DEFAULT_CALLBACK_ARGS, mapping
