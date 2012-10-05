@@ -55,6 +55,8 @@
   root.BaseChart = (function() {
 
     function BaseChart(container, gqueries) {
+      this.draw_legend = __bind(this.draw_legend, this);
+
       this.tallest_column_value = __bind(this.tallest_column_value, this);
       this.container = container;
       this.gqueries = gqueries;
@@ -76,6 +78,28 @@
         future += data.results[g].future;
       }
       return Math.max(present, future);
+    };
+
+    BaseChart.prototype.draw_legend = function(svg, opts) {
+      var legend, offset, series,
+        _this = this;
+      if (opts == null) {
+        opts = {};
+      }
+      if (svg == null) {
+        svg = this.svg;
+      }
+      series = opts.series || this.gqueries;
+      offset = opts.offset || 0;
+      legend = svg.append('svg:g').attr("transform", "translate(10," + offset + ")").selectAll("svg.legend").data(series).enter().append("svg:g").attr("class", "legend").attr("transform", function(d, i) {
+        return "translate(0, " + (i * 20) + ")";
+      }).attr("height", 30).attr("width", 90);
+      legend.append("svg:rect").attr("width", 10).attr("height", 10).attr("fill", function(d) {
+        return _this.colors(d);
+      });
+      return legend.append("svg:text").attr("x", 15).attr("y", 10).text(function(d) {
+        return d;
+      });
     };
 
     return BaseChart;

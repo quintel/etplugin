@@ -61,3 +61,34 @@ class root.BaseChart
       future  += data.results[g].future
     Math.max present, future
 
+  # Draws a legend box
+  #
+  # svg  - the SVG element that will hold the legend (default: @svg)
+  # opts - an option array
+  #      series - a string array of legend items (default: @gqueries)
+  #      offset - the vertical offset
+  #
+  draw_legend: (svg, opts = {}) =>
+    svg ?= @svg
+    series = opts.series || @gqueries
+    offset = opts.offset || 0
+    legend = svg.append('svg:g')
+      .attr("transform", "translate(10,#{offset})")
+      .selectAll("svg.legend")
+      .data(series)
+      .enter()
+      .append("svg:g")
+      .attr("class", "legend")
+      .attr("transform", (d, i) ->
+        "translate(0, #{i * 20})")
+      .attr("height", 30)
+      .attr("width", 90)
+    legend.append("svg:rect")
+      .attr("width", 10)
+      .attr("height", 10)
+      .attr("fill", (d) => @colors d)
+    legend.append("svg:text")
+      .attr("x", 15)
+      .attr("y", 10)
+      .text((d) -> d)
+

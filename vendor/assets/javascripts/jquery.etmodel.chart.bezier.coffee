@@ -21,8 +21,10 @@ class root.BezierChart extends root.BaseChart
       left: 30
       right: 40
     @width  = 494 - (margins.left + margins.right)
-    @height = 400 - (margins.top + margins.bottom)
     @series_height = 300 # max height of the bars
+    @height = @series_height +
+              30 +
+              @gqueries.length * 20
 
     @start_year = 2010
     @end_year   = data.scenario.end_year
@@ -106,6 +108,7 @@ class root.BezierChart extends root.BaseChart
       .attr('d', (d) => @area d.values)
       .style('fill', (d) => @colors d.key)
 
+    @draw_legend(@svg, {series: @gqueries, offset: @series_height + 30})
     @rendered = true
 
   # Updates values

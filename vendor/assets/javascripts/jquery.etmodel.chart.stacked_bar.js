@@ -30,8 +30,8 @@
         right: 40
       };
       this.width = 494 - (margins.left + margins.right);
-      this.height = 494 - (margins.top + margins.bottom);
       this.series_height = 300;
+      this.height = this.series_height + 30 + this.gqueries.length * 20;
       this.start_year = 2010;
       this.end_year = data.scenario.end_year;
       this.x = d3.scale.ordinal().rangeRoundBands([0, this.width]).domain([this.start_year, this.end_year]);
@@ -58,6 +58,10 @@
         return _this.y(d.y);
       }).style('fill', function(d) {
         return _this.colors(d.key);
+      });
+      this.draw_legend(this.svg, {
+        series: this.gqueries,
+        offset: this.series_height + 30
       });
       return this.rendered = true;
     };
