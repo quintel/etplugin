@@ -191,7 +191,7 @@ class Etmodel.ResultFormatter
 class root.ApiGateway
   PATH = null
 
-  VERSION = '0.2.4'
+  VERSION = '0.3'
 
   # The result hash a callback can expect
   # @example
