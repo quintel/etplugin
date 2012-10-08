@@ -39,8 +39,8 @@ class root.Table extends root.BaseChart
     values = @prepare_data(data)
     @render(data, values) unless @rendered
     @rows.data(values, (d) -> d.key)
-    @rows.select('td.future').text((d) -> d.future)
-    @rows.select('td.present').text((d) -> d.present)
+    @rows.select('td.future').text((d) => @humanize_value d.future)
+    @rows.select('td.present').text((d) => @humanize_value d.present)
 
   # Converts the hash into an array of hashes
   prepare_data: (data) ->

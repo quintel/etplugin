@@ -75,6 +75,24 @@
       return s.replace(/_/g, ' ');
     };
 
+    BaseChart.prototype.humanize_value = function(x) {
+      var pow;
+      if (x == null) {
+        return '-';
+      }
+      pow = Math.log(x / Math.log(10));
+      if (pow > 9) {
+        return "" + ((x / Math.pow(10, 9)).toFixed(2)) + "B";
+      }
+      if (pow > 6) {
+        return "" + ((x / Math.pow(10, 6)).toFixed(2)) + "M";
+      }
+      if (pow > 3) {
+        return "" + ((x / Math.pow(10, 3)).toFixed(2)) + "K";
+      }
+      return x.toFixed(2);
+    };
+
     BaseChart.prototype.tallest_column_value = function(data) {
       var future, g, present, _i, _len, _ref;
       present = future = 0;

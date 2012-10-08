@@ -57,6 +57,16 @@ class root.BaseChart
   # Makes gquery names easier on the eyes
   humanize_string: (s) -> s.replace(/_/g, ' ')
 
+  # Will soon be moved to a separate Metric object
+  humanize_value: (x) ->
+    return '-' unless x?
+    pow = Math.log(x / Math.log(10))
+    return "#{(x / Math.pow(10,9)).toFixed(2)}B" if pow > 9
+    return "#{(x / Math.pow(10,6)).toFixed(2)}M" if pow > 6
+    return "#{(x / Math.pow(10,3)).toFixed(2)}K" if pow > 3
+    x.toFixed(2)
+
+
   # We calculate this to set the upper limit of the y scale
   #
   tallest_column_value: (data) =>

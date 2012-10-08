@@ -37,7 +37,9 @@
       this.x = d3.scale.ordinal().rangeRoundBands([0, this.width]).domain([this.start_year, this.end_year]);
       tallest_column = this.tallest_column_value(data);
       this.y = d3.scale.linear().range([0, this.series_height]).domain([0, tallest_column]);
-      this.y_axis = d3.svg.axis().scale(this.y.copy().range([this.series_height, 0])).ticks(5).tickSize(-420, 10, 0).orient("right");
+      this.y_axis = d3.svg.axis().scale(this.y.copy().range([this.series_height, 0])).ticks(5).tickSize(-420, 10, 0).tickFormat(function(x) {
+        return _this.humanize_value(x);
+      }).orient("right");
       this.stack_method = d3.layout.stack().offset('zero');
       stacked_data = this.flatten(this.stack_method(this.prepare_data(data)));
       this.svg = d3.select(this.container).append('svg:svg').attr("height", this.height + margins.top + margins.bottom).attr("width", this.width + margins.left + margins.right).attr("class", 'etm-chart stacked_bar').append("svg:g").attr("transform", "translate(" + margins.left + ", " + margins.top + ")");

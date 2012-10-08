@@ -45,6 +45,7 @@ class root.BezierChart extends root.BaseChart
       .scale(@inverted_y)
       .ticks(4)
       .tickSize(-410, 10, 0)
+      .tickFormat((x) => @humanize_value x)
       .orient("right")
 
     # the stack method will filter the data and calculate the offset for every

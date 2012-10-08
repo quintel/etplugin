@@ -36,6 +36,7 @@ class root.StackedBarChart extends root.BaseChart
       .scale(@y.copy().range([@series_height, 0]))
       .ticks(5)
       .tickSize(-420, 10, 0)
+      .tickFormat((x) => @humanize_value x)
       .orient("right")
 
     # the stack method will filter the data and calculate the offset for every

@@ -41,7 +41,8 @@
     };
 
     Table.prototype.refresh = function(data) {
-      var values;
+      var values,
+        _this = this;
       if (data == null) {
         data = {};
       }
@@ -53,10 +54,10 @@
         return d.key;
       });
       this.rows.select('td.future').text(function(d) {
-        return d.future;
+        return _this.humanize_value(d.future);
       });
       return this.rows.select('td.present').text(function(d) {
-        return d.present;
+        return _this.humanize_value(d.present);
       });
     };
 
