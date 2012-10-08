@@ -32,6 +32,8 @@
             return StackedBarChart;
           case 'bezier':
             return BezierChart;
+          case 'table':
+            return Table;
         }
       }).call(this);
       if (!view_class) {

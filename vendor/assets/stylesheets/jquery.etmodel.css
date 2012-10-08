@@ -9,3 +9,10 @@ svg.etm-chart {
     stroke-width: 0.5; }
   svg.etm-chart .x_axis .minor, svg.etm-chart .y_axis .minor {
     stroke-opacity: 0.5; }
+
+table.etm-d3 td, table.etm-d3 th {
+  padding: 3px; }
+table.etm-d3 thead th {
+  background-color: #dddddd; }
+table.etm-d3 tbody tr th, table.etm-d3 tbody tr td {
+  border: 1px solid #eeeeee; }

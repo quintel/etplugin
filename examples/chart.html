@@ -11,6 +11,7 @@
     <script src="../vendor/assets/javascripts/jquery.etmodel.chart.js"></script>
     <script src="../vendor/assets/javascripts/jquery.etmodel.chart.stacked_bar.js"></script>
     <script src="../vendor/assets/javascripts/jquery.etmodel.chart.bezier.js"></script>
+    <script src="../vendor/assets/javascripts/jquery.etmodel.chart.table.js"></script>
 
     <script>
     var etm;
@@ -45,6 +46,7 @@
             to
             <strong data-etm-output="dashboard_total_costs" data-etm-format="future;round:3"></strong> billion Euros).
           </p>
+          <div data-etm-chart-type="table" data-etm-chart-series="total_co2_emissions,co2_emissions_of_imported_electricity,co2_emissions_of_used_electricity"></div>
           <div data-etm-chart-type="stacked_bar" data-etm-chart-series="total_co2_emissions,co2_emissions_of_imported_electricity,co2_emissions_of_used_electricity"></div>
           <div data-etm-chart-type="bezier" data-etm-chart-series="total_co2_emissions,co2_emissions_of_imported_electricity,co2_emissions_of_used_electricity"></div>
           <div data-etm-chart-type="bezier" data-etm-chart-series="dashboard_total_costs"></div>
