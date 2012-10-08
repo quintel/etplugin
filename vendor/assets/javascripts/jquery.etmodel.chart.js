@@ -71,6 +71,10 @@
       });
     };
 
+    BaseChart.prototype.humanize_string = function(s) {
+      return s.replace(/_/g, ' ');
+    };
+
     BaseChart.prototype.tallest_column_value = function(data) {
       var future, g, present, _i, _len, _ref;
       present = future = 0;
@@ -101,7 +105,7 @@
         return _this.colors(d);
       });
       return legend.append("svg:text").attr("x", 15).attr("y", 10).text(function(d) {
-        return d;
+        return _this.humanize_string(d);
       });
     };
 

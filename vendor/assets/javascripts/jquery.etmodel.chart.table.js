@@ -19,7 +19,8 @@
     }
 
     Table.prototype.render = function(data, values) {
-      var end_year, start_year, table, tbody, thead;
+      var end_year, start_year, table, tbody, thead,
+        _this = this;
       start_year = 2010;
       end_year = data.scenario.end_year;
       table = d3.select(this.container).append('table').attr('class', 'etm-d3');
@@ -32,7 +33,7 @@
         return d.key;
       }).enter().append('tr').attr('class', 'd3-row');
       this.rows.append('th').text(function(d) {
-        return d.key;
+        return _this.humanize_string(d.key);
       });
       this.rows.append('td').attr('class', 'present');
       this.rows.append('td').attr('class', 'future');

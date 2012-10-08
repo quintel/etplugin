@@ -54,6 +54,9 @@ class root.BaseChart
   # Simple jQuery-based array flattener. Underscore provides a similar method
   flatten: (arr) -> $.map arr, (x) -> x
 
+  # Makes gquery names easier on the eyes
+  humanize_string: (s) -> s.replace(/_/g, ' ')
+
   # We calculate this to set the upper limit of the y scale
   #
   tallest_column_value: (data) =>
@@ -92,5 +95,5 @@ class root.BaseChart
     legend.append("svg:text")
       .attr("x", 15)
       .attr("y", 10)
-      .text((d) -> d)
+      .text((d) => @humanize_string d)
 

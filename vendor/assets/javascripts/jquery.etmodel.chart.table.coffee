@@ -27,7 +27,7 @@ class root.Table extends root.BaseChart
       .append('tr')
       .attr('class', 'd3-row')
 
-    @rows.append('th').text((d) -> d.key)
+    @rows.append('th').text((d) => @humanize_string d.key)
     @rows.append('td').attr('class', 'present')
     @rows.append('td').attr('class', 'future')
 
