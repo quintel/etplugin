@@ -179,10 +179,23 @@ You can add the outcome of the ETM to your
 
 ...
 
-### Chart
+### Charts
 
-...
+The plugin is able to render charts on all browsers that support the [D3.js](http://d3js.org/) javascript library. You have to add to your code an HTML element like this:
 
+    <div data-etm-chart-type="TYPE" data-etm-chart-series="SERIES"></div>
+
+With `TYPE` being one of
+
+* bezier
+* stacked_bar
+* table
+
+The `SERIES` parameter is a list of the series to be plotted, separated by a comma.
+
+Here is a valid example:
+
+    <div data-etm-chart-type="stacked_bar" data-etm-chart-series="total_co2_emissions,co2_emissions_of_imported_electricity,co2_emissions_of_used_electricity"></div>
 ## Customizing
 
 # Issues
