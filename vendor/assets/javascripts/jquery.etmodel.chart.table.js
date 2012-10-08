@@ -19,15 +19,16 @@
     }
 
     Table.prototype.render = function(data, values) {
-      this.start_year = 2010;
-      this.end_year = data.scenario.end_year;
-      this.table = d3.select(this.container).append('table').attr('class', 'etm-d3');
-      this.thead = this.table.append('thead');
-      this.tbody = this.table.append('tbody');
-      this.thead.append('tr').selectAll('th').data([123, this.start_year, this.end_year]).enter().append('th').text(function(d) {
+      var end_year, start_year, table, tbody, thead;
+      start_year = 2010;
+      end_year = data.scenario.end_year;
+      table = d3.select(this.container).append('table').attr('class', 'etm-d3');
+      thead = table.append('thead');
+      tbody = table.append('tbody');
+      thead.append('tr').selectAll('th').data([null, start_year, end_year]).enter().append('th').text(function(d) {
         return d;
       });
-      this.rows = this.tbody.selectAll('tr.d3-row').data(values, function(d) {
+      this.rows = tbody.selectAll('tr.d3-row').data(values, function(d) {
         return d.key;
       }).enter().append('tr').attr('class', 'd3-row');
       this.rows.append('th').text(function(d) {

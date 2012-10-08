@@ -5,23 +5,23 @@ class root.Table extends root.BaseChart
     super(container, gqueries)
 
   render: (data, values) =>
-    @start_year = 2010
-    @end_year   = data.scenario.end_year
+    start_year = 2010
+    end_year   = data.scenario.end_year
 
-    @table = d3.select(@container).append('table').attr('class', 'etm-d3')
-    @thead = @table.append('thead')
-    @tbody = @table.append('tbody')
+    table = d3.select(@container).append('table').attr('class', 'etm-d3')
+    thead = table.append('thead')
+    tbody = table.append('tbody')
 
     # Table header
     #
-    @thead.append('tr')
+    thead.append('tr')
       .selectAll('th')
-      .data([123, @start_year, @end_year])
+      .data([null, start_year, end_year])
       .enter()
       .append('th')
       .text((d) -> d)
 
-    @rows = @tbody.selectAll('tr.d3-row')
+    @rows = tbody.selectAll('tr.d3-row')
       .data(values, (d) -> d.key)
       .enter()
       .append('tr')
