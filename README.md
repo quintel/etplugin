@@ -7,7 +7,7 @@ on Energy, using the renowed Energy Transition Model. Free for use!
 
 Gemfile:
 
-    gem "jquery-etmodel-rails", :git  => "git@github.com:dennisschoenmakers/etplugin"
+    gem "jquery-etmodel-rails", :git  => "git@github.com:quintel/etplugin"
 
 app/assets/javascripts/application.js
 
