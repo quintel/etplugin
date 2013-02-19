@@ -335,6 +335,7 @@ class root.ApiGateway
   # queries   - an array of gquery keys that gets returned by the api.
   # success   - callback for successful api call
   # error     - callback for errornous api call
+  # reset     - set to true to reset values on the engine side
   #
   # @example success callback:
   #     api.update {success: (data) -> data.results.dashboard_total_costs.future }
@@ -347,7 +348,7 @@ class root.ApiGateway
   # update is the default api request that sets new inputs, updates settings
   # and returns results of queries)
   #
-  update: ({inputs, queries, success, error, settings}) ->
+  update: ({inputs, queries, success, error, reset, settings}) ->
     @ensure_id().done (id) =>
       error ||= @opts.defaultErrorHandler
 
@@ -358,6 +359,8 @@ class root.ApiGateway
 
       # omit empty key => null pairs
       params.gqueries = queries if queries?
+      params.reset = reset if reset?
+
       if settings?
         for key, value of @__pick_scenario_settings__(settings)
           params.scenario[key] = value
