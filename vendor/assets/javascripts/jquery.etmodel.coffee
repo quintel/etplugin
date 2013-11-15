@@ -46,6 +46,7 @@ if ($?) # makes testing easier.
         etm = new Etmodel(el, options)
         scenarios.push etm
         etm.update()
+        etm.tagInputs()
       scenarios
 
 else
@@ -95,6 +96,24 @@ class root.Etmodel
       inputs:  inputs,
       queries: $.unique(query_keys),
       success: @handle_result
+    })
+
+  tagInputs: ->
+    @api.userValues({
+      success: (inputs) =>
+        for input in @inputs
+          # Set the input type directly, seen as jQuery throws an exception
+          # when trying to change the type.
+          input.type = 'number'
+
+          # Cycle through the inputs list and set min and max properties.
+          $input = $(input)
+          key    = $input.data('etm-input')
+
+          $input.attr({
+            min: inputs[key].min,
+            max: inputs[key].max
+          })
     })
 
   # Updates data-etm-output elements with the results from the api call
@@ -324,7 +343,6 @@ class root.ApiGateway
         timeout:  15000
 
   userValues: @prototype.user_values
-
 
   # Currently ajax calls are queued with a simple $.ajaxQueue.
   # TODO: when there's multiple requests in the queue they should be reduced
