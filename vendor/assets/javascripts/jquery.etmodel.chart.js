@@ -15,7 +15,7 @@
       this.gqueries = __bind(this.gqueries, this);
       if (options instanceof Element) {
         this.container = $(options);
-        this._gqueries = this.container.data('etm-chart-series').replace(/[\n\s]/, '').split(',');
+        this._gqueries = this.container.data('etm-chart-series').replace(/[\t\n\s]+/, '').split(',');
         this.type = this.container.data('etm-chart-type');
       } else {
         this._gqueries = options.series;

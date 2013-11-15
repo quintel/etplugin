@@ -17,7 +17,7 @@ class root.Chart
   constructor: (options = {}) ->
     if options instanceof Element
       @container = $ options # wrap it in jQuery
-      @_gqueries = @container.data('etm-chart-series').replace(/[\n\s]/, '').split(',')
+      @_gqueries = @container.data('etm-chart-series').replace(/[\t\n\s]+/, '').split(',')
       @type = @container.data('etm-chart-type')
     else
       @_gqueries = options.series
