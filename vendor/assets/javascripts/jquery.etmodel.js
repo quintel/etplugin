@@ -98,10 +98,15 @@
             input.type = 'number';
             $input = $(input);
             key = $input.data('etm-input');
-            _results.push($input.attr({
+            $input.attr({
               min: inputs[key].min,
               max: inputs[key].max
-            }));
+            });
+            if ($input.data('etm-type') === 'quinn') {
+              _results.push($input.quinn());
+            } else {
+              _results.push(void 0);
+            }
           }
           return _results;
         }

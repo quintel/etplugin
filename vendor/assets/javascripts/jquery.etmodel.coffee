@@ -114,6 +114,8 @@ class root.Etmodel
             min: inputs[key].min,
             max: inputs[key].max
           })
+
+          $input.quinn() if $input.data('etm-type') is 'quinn'
     })
 
   # Updates data-etm-output elements with the results from the api call
