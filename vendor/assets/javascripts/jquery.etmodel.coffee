@@ -258,7 +258,6 @@ class root.ApiGateway
     @scenario    = @__pick_scenario_settings__(@opts)
     @scenario_id = @opts.scenario_id || @opts.id || null
 
-
   # Requests an empty scenario and assigns @scenario_id
   # Wrap things that need a scenario_id inside the ready block.
   #
@@ -293,6 +292,45 @@ class root.ApiGateway
     # return the deferred object, so we can attach callbacks as needed
     @deferred_scenario_id
 
+  # Creates a new scenario if no @scenario_id is set, or resumes an existing
+  # scenario if it is.
+  #
+  # The callback will yield the data returned by ETEngine.
+  create_or_resume_scenario: ->
+    if @deferred_scenario
+      @deferred_scenario
+    else
+      @deferred_scenario = if @scenario_id
+        @resume_scenario()
+      else
+        @create_scenario()
+
+      @deferred_scenario.done((data) => @__apply_settings__(data))
+
+  # Creates a new scenario on ETEngine using the ApiGateway settings.
+  #
+  # The callback will yield the data returned by ETEngine.
+  create_scenario: ->
+    jQuery.ajax
+      url: @path "scenarios"
+      type: 'POST'
+      timeout: 10000
+      error: @opts.defaultErrorHandler
+      data:
+        include_inputs: true
+        scenario: @scenario
+
+  # Resumes an existing scenario on ETEngine.
+  #
+  # The callback will yield the data returned by ETEngine.
+  resume_scenario: ->
+    jQuery.ajax
+      url: @path "scenarios/#{ @scenario_id }"
+      type: 'GET'
+      timeout: 10000
+      error: @opts.defaultErrorHandler
+      data:
+        include_inputs: true
 
   # It clones the current scenario with the given attributes.
   #

@@ -289,6 +289,43 @@
       return this.deferred_scenario_id;
     };
 
+    ApiGateway.prototype.create_or_resume_scenario = function() {
+      var _this = this;
+      if (this.deferred_scenario) {
+        return this.deferred_scenario;
+      } else {
+        this.deferred_scenario = this.scenario_id ? this.resume_scenario() : this.create_scenario();
+        return this.deferred_scenario.done(function(data) {
+          return _this.__apply_settings__(data);
+        });
+      }
+    };
+
+    ApiGateway.prototype.create_scenario = function() {
+      return jQuery.ajax({
+        url: this.path("scenarios"),
+        type: 'POST',
+        timeout: 10000,
+        error: this.opts.defaultErrorHandler,
+        data: {
+          include_inputs: true,
+          scenario: this.scenario
+        }
+      });
+    };
+
+    ApiGateway.prototype.resume_scenario = function() {
+      return jQuery.ajax({
+        url: this.path("scenarios/" + this.scenario_id),
+        type: 'GET',
+        timeout: 10000,
+        error: this.opts.defaultErrorHandler,
+        data: {
+          include_inputs: true
+        }
+      });
+    };
+
     ApiGateway.prototype.changeScenario = function(_arg) {
       var attributes, error, params, success, success_callback,
         _this = this;
