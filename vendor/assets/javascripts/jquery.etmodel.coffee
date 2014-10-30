@@ -373,10 +373,11 @@ class root.ApiGateway
 
   # Loads scenarios/../inputs.json that contains attributes for the inputs.
   #
-  user_values: ({success, error}) =>
+  user_values: ({success, error, extras}) =>
     @ensure_id().done =>
       $.ajax
         url: @path("scenarios/#{@scenario_id}/inputs.json")
+        data: { include_extras: extras }
         success : success
         error: error
         dataType: 'json'
@@ -487,7 +488,7 @@ class root.ApiGateway
   # extracts only keys relevant for settings from hsh
   __pick_scenario_settings__: (hsh) ->
     result = {}
-    for key in ['area_code', 'end_year', 'preset_id', 'use_fce', 'source']
+    for key in ['area_code', 'end_year', 'preset_id', 'use_fce', 'source', 'scale']
       result[key] = hsh[key] if hsh[key] isnt undefined
 
     if hsh.preset_scenario_id
