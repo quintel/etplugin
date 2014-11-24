@@ -489,7 +489,7 @@ class root.ApiGateway
   __pick_scenario_settings__: (hsh) ->
     result = {}
     for key in ['area_code', 'end_year', 'preset_id', 'use_fce', 'source', 'scale']
-      result[key] = hsh[key] if hsh[key] isnt undefined
+      result[key] = hsh[key] if hsh[key]?
 
     if hsh.preset_scenario_id
       result.scenario_id = hsh.preset_scenario_id

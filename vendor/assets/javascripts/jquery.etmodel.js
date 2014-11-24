@@ -483,7 +483,7 @@
       _ref = ['area_code', 'end_year', 'preset_id', 'use_fce', 'source', 'scale'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         key = _ref[_i];
-        if (hsh[key] !== void 0) {
+        if (hsh[key] != null) {
           result[key] = hsh[key];
         }
       }
