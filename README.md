@@ -105,7 +105,7 @@ In the same request we can define queries that should be returned:
 ## Testing
 
 
-Tests are written using the mocha testing framework (http://visionmedia.github.com/mocha/).
+Tests are written using the mocha testing framework (http://mochajs.org/).
 
 Installing mocha:
 
