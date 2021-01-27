@@ -275,7 +275,6 @@
           data: {
             scenario: this.scenario
           },
-          timeout: 10000,
           error: this.opts.defaultErrorHandler
         }).pipe(function(data) {
           if (typeof data === 'string') {
@@ -309,7 +308,6 @@
       return jQuery.ajax({
         url: this.path("scenarios"),
         type: 'POST',
-        timeout: 10000,
         error: this.opts.defaultErrorHandler,
         data: {
           include_inputs: true,
@@ -322,7 +320,6 @@
       return jQuery.ajax({
         url: this.path("scenarios/" + this.scenario_id),
         type: 'GET',
-        timeout: 10000,
         error: this.opts.defaultErrorHandler,
         data: {
           include_inputs: true
@@ -391,8 +388,7 @@
             },
             success: success,
             error: error,
-            dataType: 'json',
-            timeout: 15000
+            dataType: 'json'
           });
         };
       })(this));
@@ -457,7 +453,6 @@
         data: params,
         type: 'PUT',
         dataType: 'json',
-        timeout: 10000,
         headers: {
           'X-Api-Agent': "jQuery.etmodel " + VERSION
         }

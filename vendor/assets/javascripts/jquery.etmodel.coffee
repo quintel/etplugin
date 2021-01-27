@@ -277,7 +277,6 @@ class root.ApiGateway
         url:  @path "scenarios"
         type: 'POST'
         data: { scenario : @scenario }
-        timeout: 10000
         error: @opts.defaultErrorHandler
       ).pipe (data) ->
         if typeof data is 'string' # FF does not parse data...
@@ -314,7 +313,6 @@ class root.ApiGateway
     jQuery.ajax
       url: @path "scenarios"
       type: 'POST'
-      timeout: 10000
       error: @opts.defaultErrorHandler
       data:
         include_inputs: true
@@ -327,7 +325,6 @@ class root.ApiGateway
     jQuery.ajax
       url: @path "scenarios/#{ @scenario_id }"
       type: 'GET'
-      timeout: 10000
       error: @opts.defaultErrorHandler
       data:
         include_inputs: true
@@ -381,7 +378,6 @@ class root.ApiGateway
         success : success
         error: error
         dataType: 'json'
-        timeout:  15000
 
   userValues: @prototype.user_values
 
@@ -463,7 +459,6 @@ class root.ApiGateway
       data:      params
       type:      'PUT'
       dataType:  'json'
-      timeout:   10000
       headers:   {
         'X-Api-Agent': "jQuery.etmodel #{VERSION}"
       }
