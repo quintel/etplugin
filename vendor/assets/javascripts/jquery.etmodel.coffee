@@ -258,6 +258,15 @@ class root.ApiGateway
     @scenario    = @__pick_scenario_settings__(@opts)
     @scenario_id = @opts.scenario_id || @opts.id || null
 
+  # Returns the headers to be sent with each request to the Engine.
+  request_headers: ->
+    headers = { "X-Api-Agent": "jQuery.etmodel #{VERSION}" }
+
+    if @opts.access_token
+      headers.Authorization = "Bearer #{@opts.access_token}"
+
+    headers
+
   # Requests an empty scenario and assigns @scenario_id
   # Wrap things that need a scenario_id inside the ready block.
   #
@@ -278,6 +287,7 @@ class root.ApiGateway
         type: 'POST'
         data: { scenario : @scenario }
         error: @opts.defaultErrorHandler
+        headers: @request_headers()
       ).pipe (data) ->
         if typeof data is 'string' # FF does not parse data...
           data = $.parseJSON(data)
@@ -314,6 +324,7 @@ class root.ApiGateway
       url: @path "scenarios"
       type: 'POST'
       error: @opts.defaultErrorHandler
+      headers: @request_headers()
       data:
         include_inputs: true
         scenario: @scenario
@@ -326,6 +337,7 @@ class root.ApiGateway
       url: @path "scenarios/#{ @scenario_id }"
       type: 'GET'
       error: @opts.defaultErrorHandler
+      headers: @request_headers()
       data:
         include_inputs: true
 
@@ -375,6 +387,7 @@ class root.ApiGateway
       $.ajax
         url: @path("scenarios/#{@scenario_id}/inputs.json")
         data: { include_extras: extras }
+        headers: @request_headers()
         success : success
         error: error
         dataType: 'json'
@@ -459,9 +472,7 @@ class root.ApiGateway
       data:      params
       type:      'PUT'
       dataType:  'json'
-      headers:   {
-        'X-Api-Agent': "jQuery.etmodel #{VERSION}"
-      }
+      headers: @request_headers()
     }, ajaxOptions
 
 
