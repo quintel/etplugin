@@ -382,12 +382,14 @@ class root.ApiGateway
 
   # Loads scenarios/../inputs.json that contains attributes for the inputs.
   #
-  user_values: ({success, error, extras}) =>
+  user_values: ({success, error, extras, cache}) =>
+    headers = cache ? @request_headers() : $.extend(@request_headers(), { "cache-control": "no-cache" })
     @ensure_id().done =>
       $.ajax
         url: @path("scenarios/#{@scenario_id}/inputs.json")
+        cache: cache
         data: { include_extras: extras }
-        headers: @request_headers()
+        headers: $.extend(@request_headers(), { "cache-control": "no-cache" })
         success : success
         error: error
         dataType: 'json'
