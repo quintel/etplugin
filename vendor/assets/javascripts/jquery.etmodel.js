@@ -479,14 +479,21 @@ Etmodel.ResultFormatter = class ResultFormatter {
 
     // Loads scenarios/../inputs.json that contains attributes for the inputs.
     //
-    user_values({ success, error, extras }) {
+    user_values({ success, error, extras, cache }) {
+      headers = this.request_headers()
+      data = { include_extras: extras }
+      if (!cache) {
+        data = { include_extras: extras, time: new Date.getTime() }
+        $.extend(headers, { "cache-control": "no-cache, no-store, max-age=0, must-revalidate" })
+      }
       return this.ensure_id().done(() => {
         return $.ajax({
           url: this.path(`scenarios/${this.scenario_id}/inputs.json`),
-          data: { include_extras: extras },
-          headers: this.request_headers(),
+          data: data,
+          headers: headers,
           success,
           error,
+          cache: cache,
           dataType: "json",
         });
       });
