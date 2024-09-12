@@ -483,7 +483,7 @@ Etmodel.ResultFormatter = class ResultFormatter {
       var headers = this.request_headers()
       var data = { include_extras: extras }
       if (!cache) {
-        data = { include_extras: extras, time: new Date.getTime() }
+        data = { include_extras: extras, time: Date.now() }
         headers = $.extend(headers, { "cache-control": "no-cache, no-store, max-age=0, must-revalidate" })
       }
       return this.ensure_id().done(() => {
