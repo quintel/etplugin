@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.6"
   # s.rubyforge_project         = "etmodel-rails"
 
-  s.add_dependency "railties", ">= 3.1"
-  s.add_development_dependency "rails", ">= 3.1"
+  s.add_dependency "railties", ">= 7.0"
+  s.add_development_dependency "rails", "~> 8.1"
 
   s.files        = `git ls-files`.split("\n")
   s.require_path = 'lib'
